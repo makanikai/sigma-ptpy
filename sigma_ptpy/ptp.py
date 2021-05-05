@@ -203,6 +203,7 @@ class SigmaPTP(PTP):
             SigmaGetCamDataGroup2=0x9013,
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
+            SigmaGetViewFrame=0x902B,
             SigmaConfigApi=0x9035,
             **vendor_operations
         )
@@ -213,6 +214,7 @@ class SigmaPTP(PTP):
             SigmaGetCamDataGroup2=0x9013,
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
+            SigmaGetViewFrame=0x902B,
             SigmaConfigApi=0x9035,
             **vendor_operations
         )

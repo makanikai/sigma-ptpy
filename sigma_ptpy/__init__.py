@@ -1,9 +1,12 @@
+import cv2
 import logging
-from ptpy import USB
-from construct import Container
-from .ptp import SigmaPTP
-from rainbow_logging_handler import RainbowLoggingHandler
+import numpy as np
 import sys
+from construct import Container
+from ptpy import USB
+from rainbow_logging_handler import RainbowLoggingHandler
+
+from .ptp import SigmaPTP
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter(
@@ -63,3 +66,15 @@ class SigmaPTPy(SigmaPTP, USB):
             TransactionID=self._transaction,
             Parameter=[])
         return self.send(ptp, payload)
+
+    def get_view_frame(self):
+        '''Load a live-view image from a camera.'''
+
+        ptp = Container(
+            OperationCode='SigmaGetViewFrame',
+            SessionID=self._session,
+            TransactionID=self._transaction,
+            Parameter=[])
+        resp = self.recv(ptp)
+        jpeg = resp.Data[10:]
+        return cv2.imdecode(np.fromstring(jpeg, np.uint8), cv2.IMREAD_COLOR)
