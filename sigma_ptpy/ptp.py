@@ -48,6 +48,24 @@ class SigmaPTP(PTP):
         '_Reserved4' / Default(BitsInteger(1), 0),
         'FlashType' / Default(BitsInteger(1), 0),
     ))
+    _DataGroup3FieldPresent = Bitwise(Struct(
+        'LensTeleFocalLength' / Default(BitsInteger(1), 0),
+        'LensWideFocalLength' / Default(BitsInteger(1), 0),
+        'BatteryKind' / Default(BitsInteger(1), 0),
+        'ColorMode' / Default(BitsInteger(1), 0),
+        'ColorSpace' / Default(BitsInteger(1), 0),
+        '_Reserved2' / Default(BitsInteger(1), 0),
+        '_Reserved1' / Default(BitsInteger(1), 0),
+        '_Reserved0' / Default(BitsInteger(1), 0),
+        'DestinationToSave' / Default(BitsInteger(1), 0),
+        '_Reserved6' / Default(BitsInteger(1), 0),
+        'TimerSound' / Default(BitsInteger(1), 0),
+        '_Reserved5' / Default(BitsInteger(1), 0),
+        '_Reserved4' / Default(BitsInteger(1), 0),
+        '_Reserved3' / Default(BitsInteger(1), 0),
+        'AFBeep' / Default(BitsInteger(1), 0),
+        'AFAuxiliaryLight' / Default(BitsInteger(1), 0),
+    ))
     _DriveMode = Enum(
         Int8un,
         default=Pass,
@@ -147,6 +165,44 @@ class SigmaPTP(PTP):
         Dng=0x10,
         DngAndJpeg=0x12
     )
+    _ColorSpace = Enum(
+        Int8un,
+        default=Pass,
+        Uninitialized=0x00,
+        sRGB=0x01,
+        AdobeRGB=0x02,
+    )
+    _ColorMode = Enum(
+        Int8un,
+        default=Pass,
+        Normal=0x00,
+        Sepia=0x01,
+        WhiteAndBlack=0x02,
+        Standard=0x03,
+        Vivid=0x04,
+        Neutral=0x05,
+        Portrait=0x06,
+        Landscape=0x07,
+        FovClassicBlue=0x08,
+        Sunset=0x09,
+        Forest=0x0A,
+        Cinema=0x0B,
+        FovClassicYellow=0x0C,
+    )
+    _BatteryKind = Enum(
+        Int8un,
+        default=Pass,
+        Uninitialized=0x00,
+        BodyBattery=0x01,
+        ACAdapter=0x02,
+    )
+    _AFAuxiliaryLight = Enum(
+        Int8un,
+        default=Pass,
+        Uninitialized=0x00,
+        ON=0x01,
+        OFF=0x02,
+    )
     _CaptureMode = Enum(
         Int8un,
         default=Pass,
@@ -238,6 +294,28 @@ class SigmaPTP(PTP):
             '_Parity' / Default(Int8un, 0)
         )
 
+        self._CamDataGroup3 = Struct(
+            '_Header' / Default(Int8un, 0), # arbitrary value for parity
+            'FieldPresent' / self._DataGroup3FieldPresent,
+            '_Reserved0' / Default(If(lambda x: x.FieldPresent._Reserved0 == 1, Int8un), 0),
+            '_Reserved1' / Default(If(lambda x: x.FieldPresent._Reserved1 == 1, Int8un), 0),
+            '_Reserved2' / Default(If(lambda x: x.FieldPresent._Reserved2 == 1, Int8un), 0),
+            'ColorSpace' / Default(If(lambda x: x.FieldPresent.ColorSpace == 1, self._ColorSpace), 0),
+            'ColorMode' / Default(If(lambda x: x.FieldPresent.ColorMode == 1, self._ColorMode), 0),
+            'BatteryKind' / Default(If(lambda x: x.FieldPresent.BatteryKind == 1, self._BatteryKind), 0),
+            'LensWideFocalLength' / Default(If(lambda x: x.FieldPresent.LensWideFocalLength == 1, Int16ul), 0),
+            'LensTeleFocalLength' / Default(If(lambda x: x.FieldPresent.LensTeleFocalLength == 1, Int16ul), 0),
+            'AFAuxiliaryLight' / Default(If(lambda x: x.FieldPresent.AFAuxiliaryLight == 1, self._AFAuxiliaryLight), 0),
+            'AFBeep' / Default(If(lambda x: x.FieldPresent.AFBeep == 1, Int8un), 0),
+            '_Reserved3' / Default(If(lambda x: x.FieldPresent._Reserved3 == 1, Int8un), 0),
+            '_Reserved4' / Default(If(lambda x: x.FieldPresent._Reserved4 == 1, Int8un), 0),
+            '_Reserved5' / Default(If(lambda x: x.FieldPresent._Reserved5 == 1, Int8un), 0),
+            'TimerSound' / Default(If(lambda x: x.FieldPresent.TimerSound == 1, Int8un), 0),
+            '_Reserved6' / Default(If(lambda x: x.FieldPresent._Reserved6 == 1, Int8un), 0),
+            'DestinationToSave' / Default(If(lambda x: x.FieldPresent.DestinationToSave == 1, self._DestinationToSave), 0),
+            '_Parity' / Default(Int8un, 0)
+        )
+
         self._CamCaptStatus = Struct(
             '_Header' / Int8un, # arbitrary value for parity
             'ImageId' / Int8un,
@@ -280,9 +358,11 @@ class SigmaPTP(PTP):
         return super(SigmaPTP, self)._OperationCode(
             SigmaGetCamDataGroup1=0x9012,
             SigmaGetCamDataGroup2=0x9013,
+            SigmaGetCamDataGroup3=0x9014,
             SigmaGetCamCaptStatus=0x9015,
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
+            SigmaSetCamDataGroup3=0x9018,
             SigmaSnapCommand=0x901B,
             SigmaGetBigPartialPictFile=0x9022,
             SigmaGetViewFrame=0x902B,
@@ -295,9 +375,11 @@ class SigmaPTP(PTP):
         return super(SigmaPTP, self)._ResponseCode(
             SigmaGetCamDataGroup1=0x9012,
             SigmaGetCamDataGroup2=0x9013,
+            SigmaGetCamDataGroup3=0x9014,
             SigmaGetCamCaptStatus=0x9015,
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
+            SigmaSetCamDataGroup3=0x9018,
             SigmaSnapCommand=0x901B,
             SigmaGetBigPartialPictFile=0x9022,
             SigmaGetViewFrame=0x902B,

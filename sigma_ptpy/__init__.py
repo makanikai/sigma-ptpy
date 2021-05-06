@@ -41,6 +41,9 @@ class SigmaPTPy(SigmaPTP, USB):
     def get_cam_data_group2(self):
         return self._get_cam_data_group('SigmaGetCamDataGroup2', self._CamDataGroup2)
 
+    def get_cam_data_group3(self):
+        return self._get_cam_data_group('SigmaGetCamDataGroup3', self._CamDataGroup3)
+
     def _get_cam_data_group(self, opcode, schema):
         ptp = Container(
             OperationCode=opcode,
@@ -56,6 +59,9 @@ class SigmaPTPy(SigmaPTP, USB):
 
     def set_cam_data_group2(self, data):
         return self._set_cam_data_group('SigmaSetCamDataGroup2', self._CamDataGroup2, data)
+
+    def set_cam_data_group3(self, data):
+        return self._set_cam_data_group('SigmaSetCamDataGroup3', self._CamDataGroup3, data)
 
     def _set_cam_data_group(self, opcode, schema, data):
         payload = self._build_if_not_data(data, schema)

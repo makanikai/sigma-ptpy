@@ -118,6 +118,30 @@ class TestSigmaPTP(unittest.TestCase):
         self.assertEqual(res.FieldPresent.ImageQuality, 1)
         self.assertEqual(res.ImageQuality, 'Dng')
 
+
+    def test_CamDataGroup3_RecvData(self):
+        fmt = SigmaPTP()._CamDataGroup3
+        res = fmt.parse(b"\x10\xff\xa3\x00\x00\x00\x01\x03\x02\x00\xd0\x00\x00\x02\x05\x05\x02\x96")
+
+        self.assertEqual(res.FieldPresent.ColorSpace, 1)
+        self.assertEqual(res.ColorSpace, 'sRGB')
+        self.assertEqual(res.FieldPresent.ColorMode, 1)
+        self.assertEqual(res.ColorMode, 'Standard')
+        self.assertEqual(res.FieldPresent.BatteryKind, 1)
+        self.assertEqual(res.BatteryKind, 'ACAdapter')
+        self.assertEqual(res.FieldPresent.LensWideFocalLength, 1)
+        self.assertEqual(res.LensWideFocalLength, 0xd000)
+        self.assertEqual(res.FieldPresent.LensTeleFocalLength, 1)
+        self.assertEqual(res.LensTeleFocalLength, 0x0000)
+        self.assertEqual(res.FieldPresent.AFAuxiliaryLight, 1)
+        self.assertEqual(res.AFAuxiliaryLight, 'OFF')
+        self.assertEqual(res.FieldPresent.AFBeep, 1)
+        self.assertEqual(res.AFBeep, 0x05)
+        self.assertEqual(res.FieldPresent.TimerSound, 1)
+        self.assertEqual(res.TimerSound, 0x05)
+        self.assertEqual(res.FieldPresent.DestinationToSave, 1)
+        self.assertEqual(res.DestinationToSave, 'InComputer')
+
     def test_CamCaptStatus_RecvData(self):
         fmt = SigmaPTP()._CamCaptStatus
 
