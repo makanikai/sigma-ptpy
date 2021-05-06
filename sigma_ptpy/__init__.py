@@ -67,6 +67,16 @@ class SigmaPTPy(SigmaPTP, USB):
             Parameter=[])
         return self.send(ptp, payload)
 
+    def get_cam_capt_status(self):
+        ptp = Container(
+            OperationCode='SigmaGetCamCaptStatus',
+            SessionID=self._session,
+            TransactionID=self._transaction,
+            Parameter=[0x00000000])
+        response = self.recv(ptp)
+        logger.debug("SigmaPTPy receives {}".format(" ".join(list(map(lambda s: format(s, "02x"), response.Data[:128])))))
+        return self._parse_if_data(response, self._CamCaptStatus)
+
     def get_view_frame(self):
         '''Load a live-view image from a camera.'''
 
@@ -78,3 +88,16 @@ class SigmaPTPy(SigmaPTP, USB):
         resp = self.recv(ptp)
         jpeg = resp.Data[10:]
         return cv2.imdecode(np.fromstring(jpeg, np.uint8), cv2.IMREAD_COLOR)
+
+    def snap_command(self, capture_mode='GeneralCapture', capture_amount=1):
+        data = Container(
+            CaptureMode=capture_mode,
+            CaptureAmount=capture_amount
+        )
+        payload = self._build_if_not_data(data, self._SnapCommand)
+        ptp = Container(
+            OperationCode='SigmaSnapCommand',
+            SessionID=self._session,
+            TransactionID=self._transaction,
+            Parameter=[])
+        return self.send(ptp, payload)

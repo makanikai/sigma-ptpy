@@ -147,6 +147,49 @@ class SigmaPTP(PTP):
         Dng=0x10,
         DngAndJpeg=0x12
     )
+    _CaptureMode = Enum(
+        Int8un,
+        default=Pass,
+        Uninitialized=0x00,
+        GeneralCapture=0x01,
+        NonAFCapture=0x02,
+        AFDriveOnly=0x03,
+        StartAF=0x04,
+        StopAF=0x05,
+        StartCapture=0x06,
+        StopCapture=0x07,
+        StartRecodingMovieWithAF=0x10,
+        StartRecodingMovieWithoutAF=0x20,
+        StopRecodingMovie=0x30,
+    )
+    _CaptStatus = Enum(
+        Int16ul,
+        default=Pass,
+        Cleared=0x0000, # Uninitialized / Cleared
+        ShootingInProgress=0x0001, # Shooting standby / In operation
+        ShootingSuccess=0x0002, # Shooting succeeded (Shooting sequence without image generation sequence)
+        ImageGenerationInProgress=0x0004, # Image generation or custom white balance processing in progress
+        ImageGenerationCompleted=0x0005, # Image data (file) generation completed
+        StoppingMovieRecording=0x0006, # Preparation for stopping the movie recording
+        MovieGenerationCompleted=0x0007, # Movie file generation completed
+        AFSuccess=0x8001, # AF success (AFOnly mode only)
+        CWBSuccess=0x8002, # Custom white balance acquirement succeeded (CWB Capture mode only).
+        ImageDataStorageCompleted=0x8003, # Image data storage completed
+        Interrupted=0x8004, # Other interrupt or exit without error (successfully exited)
+        AFFailed=0x6001, # AF failure (in all shooting modes that use AF)
+        BufferFull=0x6002,
+        CWBFailed=0x6003, # Custom white balance image acquirement failed.
+        ImageGenerationFailed=0x6004, # Image generation failed due to an error occurred during image generation.
+        Failed=0x6005, # General failure (other than any of the above-mentioned failures.)
+    )
+    _DestinationToSave = Enum(
+        Int8un,
+        default=Pass,
+        Uninitialized=0x00,
+        InCamera=0x01, # In-camera media
+        InComputer=0x02, # Drive in PC side
+        Both=0x03, # In-camera media + Drive in PC side
+    )
 
     def __init__(self, *args, **kwargs):
         logger.debug("Init SigmaPTP")
@@ -195,14 +238,33 @@ class SigmaPTP(PTP):
             '_Parity' / Default(Int8un, 0)
         )
 
+        self._CamCaptStatus = Struct(
+            '_Header' / Int8un, # arbitrary value for parity
+            'ImageId' / Int8un,
+            'ImageDBHead' / Int8un,
+            'ImageDBTail' / Int8un,
+            'CaptStatus' / self._CaptStatus,
+            'DestinationToSave' / self._DestinationToSave,
+            '_Parity' / Int8un
+        )
+
+        self._SnapCommand = Struct(
+            '_Header' / Default(Int8un, 0), # arbitrary value for parity
+            'CaptureMode' / self._CaptureMode,
+            'CaptureAmount' / Int8un,
+            '_Parity' / Default(Int8un, 0)
+        )
+
         super(SigmaPTP, self).__init__(*args, **kwargs)
 
     def _OperationCode(self, **vendor_operations):
         return super(SigmaPTP, self)._OperationCode(
             SigmaGetCamDataGroup1=0x9012,
             SigmaGetCamDataGroup2=0x9013,
+            SigmaGetCamCaptStatus=0x9015,
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
+            SigmaSnapCommand=0x901B,
             SigmaGetViewFrame=0x902B,
             SigmaConfigApi=0x9035,
             **vendor_operations
@@ -212,8 +274,10 @@ class SigmaPTP(PTP):
         return super(SigmaPTP, self)._ResponseCode(
             SigmaGetCamDataGroup1=0x9012,
             SigmaGetCamDataGroup2=0x9013,
+            SigmaGetCamCaptStatus=0x9015,
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
+            SigmaSnapCommand=0x901B,
             SigmaGetViewFrame=0x902B,
             SigmaConfigApi=0x9035,
             **vendor_operations

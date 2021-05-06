@@ -118,5 +118,22 @@ class TestSigmaPTP(unittest.TestCase):
         self.assertEqual(res.FieldPresent.ImageQuality, 1)
         self.assertEqual(res.ImageQuality, 'Dng')
 
+    def test_CamCaptStatus_RecvData(self):
+        fmt = SigmaPTP()._CamCaptStatus
+
+        res = fmt.parse(b"\x06\x00\x00\x01\x01\x00\x03\x0B")
+        self.assertEqual(res.ImageId, 0)
+        self.assertEqual(res.ImageDBHead, 0)
+        self.assertEqual(res.ImageDBTail, 1)
+        self.assertEqual(res.CaptStatus, 'ShootingInProgress')
+        self.assertEqual(res.DestinationToSave, 'Both')
+
+        res = fmt.parse(b"\x06\x00\x00\x01\x04\x00\x03\x0E")
+        self.assertEqual(res.ImageId, 0)
+        self.assertEqual(res.ImageDBHead, 0)
+        self.assertEqual(res.ImageDBTail, 1)
+        self.assertEqual(res.CaptStatus, 'ImageGenerationInProgress')
+        self.assertEqual(res.DestinationToSave, 'Both')
+
 if __name__ == '__main__':
     unittest.main()
