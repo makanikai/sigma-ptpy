@@ -27,3 +27,7 @@ jobs:
       run: python setup.py test
     - name: Package
       run: python setup.py sdist bdist_wheel
+    - name: Build documents
+      run: |
+        pip install sphinx sphinx-rtd-theme
+        make -C docs html
