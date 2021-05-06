@@ -1,6 +1,6 @@
 import unittest
 from sigma_ptpy import SigmaPTP
-from sigma_ptpy.ptp import (
+from sigma_ptpy.enum import (
     DriveMode, SpecialMode, ExposureMode, AEMeteringMode, FlashType, FlashMode, FlashSetting,
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
     BatteryKind, AFAuxLight, CaptureMode, CaptStatus, DestToSave
