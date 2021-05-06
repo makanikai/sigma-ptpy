@@ -1,32 +1,33 @@
 import unittest
 from sigma_ptpy.enum import (
-    DriveMode, SpecialMode, ExposureMode, AEMeteringMode, FlashType, FlashMode, FlashSetting,
+    DriveMode, SpecialMode, ExposureMode, AEMeteringMode, FlashMode, FlashSetting,
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
-    BatteryKind, AFAuxLight, CaptureMode, CaptStatus, DestToSave
+    BatteryKind, AFAuxLight, CaptStatus, DestToSave
 )
 from sigma_ptpy.schema import (
     _CamDataGroup1, _CamDataGroup2, _CamDataGroup3,
-    _CamCaptStatus, _SnapCommand, _PictFileInfo2, _BigPartialPictFile
+    _CamCaptStatus, _PictFileInfo2
 )
+
 
 class Test_CamDataGroup1(unittest.TestCase):
     def test_ShutterSpeed(self):
         res = _CamDataGroup1.parse(b"\x03\x01\x00\x10\x14")
         self.assertEqual(res.FieldPresent.ShutterSpeed, 1)
-        self.assertEqual(res.ShutterSpeed, 16) # SS=30s
+        self.assertEqual(res.ShutterSpeed, 16)  # SS=30s
 
         res = _CamDataGroup1.parse(b"\x03\x01\x00\x5B\x5F")
         self.assertEqual(res.FieldPresent.ShutterSpeed, 1)
-        self.assertEqual(res.ShutterSpeed, 91) # SS=1/20s
+        self.assertEqual(res.ShutterSpeed, 91)  # SS=1/20s
 
     def test_Aperture(self):
         res = _CamDataGroup1.parse(b"\x03\x02\x00\x20\x25")
         self.assertEqual(res.FieldPresent.Aperture, 1)
-        self.assertEqual(res.Aperture, 32) # F=2.8
+        self.assertEqual(res.Aperture, 32)  # F=2.8
 
         res = _CamDataGroup1.parse(b"\x03\x02\x00\x28\x2D")
         self.assertEqual(res.FieldPresent.Aperture, 1)
-        self.assertEqual(res.Aperture, 40) # F=4.0
+        self.assertEqual(res.Aperture, 40)  # F=4.0
 
     def test_ISOAuto(self):
         res = _CamDataGroup1.parse(b"\x03\x08\x00\x00\x0B")
@@ -40,11 +41,11 @@ class Test_CamDataGroup1(unittest.TestCase):
     def test_ISOSpeed(self):
         res = _CamDataGroup1.parse(b"\x03\x10\x00\x20\x33")
         self.assertEqual(res.FieldPresent.ISOSpeed, 1)
-        self.assertEqual(res.ISOSpeed, 32) # ISO=100
+        self.assertEqual(res.ISOSpeed, 32)  # ISO=100
 
         res = _CamDataGroup1.parse(b"\x03\x10\x00\x48\x5B")
         self.assertEqual(res.FieldPresent.ISOSpeed, 1)
-        self.assertEqual(res.ISOSpeed, 72) # ISO=3200
+        self.assertEqual(res.ISOSpeed, 72)  # ISO=3200
 
     def test_RecvData(self):
         res = _CamDataGroup1.parse(b"\x13\xff\x7f\x20\x20\x00\x01\xf8\x00\x00\x01\tk\x03\x01\xd0\x02\x08\x00\x00\x1d")
@@ -165,7 +166,11 @@ class Test_CamCaptStatus(unittest.TestCase):
 
 class Test_PictFileInfo2(unittest.TestCase):
     def test_RecvData(self):
-        res = _PictFileInfo2.parse(b"\x38\x00\x00\x00\x01\x00\x00\x00\x0C\x00\x00\x00\x80\x05\x00\x57\x42\x3E\x0A\x00\x24\x00\x00\x00\x2D\x00\x00\x00\x4A\x50\x47\x00\x70\x17\xA0\x0F\x31\x30\x30\x53\x49\x47\x4D\x41\x00\x53\x44\x49\x4D\x30\x30\x30\x31\x2E\x4A\x50\x47\x00\x03\x00")
+        res = _PictFileInfo2.parse((
+            b"\x38\x00\x00\x00\x01\x00\x00\x00\x0C\x00\x00\x00\x80\x05\x00\x57"
+            b"\x42\x3E\x0A\x00\x24\x00\x00\x00\x2D\x00\x00\x00\x4A\x50\x47\x00"
+            b"\x70\x17\xA0\x0F\x31\x30\x30\x53\x49\x47\x4D\x41\x00\x53\x44\x49"
+            b"\x4D\x30\x30\x30\x31\x2E\x4A\x50\x47\x00\x03\x00"))
         self.assertEqual(res.FileAddress, 0x57000580)
         self.assertEqual(res.FileSize, 0x000a3e42)
         self.assertEqual(res.PictureFormat, b"JPG")

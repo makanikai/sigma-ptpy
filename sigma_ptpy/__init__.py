@@ -1,5 +1,4 @@
 import logging
-import numpy as np
 import sys
 import os
 from construct import Container
@@ -27,14 +26,17 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(level)
 
+
 def bytes_to_hex(b):
     return " ".join(list(map(lambda s: format(s, "02x"), b[:128])))
+
 
 def dict_to_payload_container(kwargs):
     field_present = dict((k, 1) for k in kwargs.keys())
     return Container(
-        FieldPresent = Container(**field_present),
+        FieldPresent=Container(**field_present),
         **kwargs)
+
 
 class SigmaPTPy(SigmaPTP, USB):
     """Operations on the SIGMA fp series.

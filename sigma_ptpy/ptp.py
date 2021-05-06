@@ -1,11 +1,5 @@
 from ptpy import PTP
-from construct import (
-    Adapter, Array, BitsInteger, Bitwise, Bytes, Container, Default, Int16sb,
-    Int16sl, Int16sn, Int16ub, Int16ul, Int16un, Int32sb, Int32sl, Int32sn,
-    Int32ub, Int32ul, Int32un, Int64sb, Int64sl, Int64sn, Int64ub, Int64ul,
-    Int64un, Int8sb, Int8sl, Int8sn, Int8ub, Int8ul, Int8un, Pass, Padding,
-    PrefixedArray, Struct, Switch, If, String, CString, GreedyBytes, Mapping
-)
+
 
 class SigmaPTP(PTP):
 

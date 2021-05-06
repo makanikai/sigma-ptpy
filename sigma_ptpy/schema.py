@@ -1,8 +1,8 @@
 """Schema definitions for the SIGMA fp series"""
 
 from construct import (
-    Adapter, BitsInteger, Bitwise, Bytes, Container, Default, FlagsEnum,
-    Int16ub, Int16sl, Int16ul, Int32sl, Int32ul, Int8sn, Int8un,
+    Adapter, Bytes, Default, FlagsEnum,
+    Int16ub, Int16ul, Int32ul, Int8sn, Int8un,
     Pass, Struct, If, String, CString, GreedyBytes, Mapping
 )
 from .enum import (
@@ -10,6 +10,7 @@ from .enum import (
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
     BatteryKind, AFAuxLight, CaptureMode, CaptStatus, DestToSave
 )
+
 
 class _FixedPointValue(Adapter):
     def __init__(self, subcon, fraction_bit):
@@ -27,6 +28,7 @@ class _FixedPointValue(Adapter):
         b = float(obj & self.__mask) / (self.__mask + 1)
         return a + b
 
+
 def _Enum(subcon, enum_class):
     return Mapping(
         subcon,
@@ -34,8 +36,10 @@ def _Enum(subcon, enum_class):
         dict((e, e.value) for e in enum_class),
         decdefault=Pass, encdefault=Pass)
 
+
 def _IfDefined(key, subcon):
     return If(lambda x: key in x.FieldPresent and x.FieldPresent[key], subcon)
+
 
 _DriveMode = _Enum(Int8un, DriveMode)
 _SpecialMode = _Enum(Int8un, SpecialMode)
@@ -57,26 +61,26 @@ _DestToSave = _Enum(Int8un, DestToSave)
 
 _CamDataGroup1FieldPresent = FlagsEnum(
     Int16ub,
-    ABSetting = 0x8000,
-    ABValue = 0x4000,
-    ExpCompensation = 0x2000,
-    ISOSpeed = 0x1000,
-    ISOAuto = 0x800,
-    ProgramShift = 0x400,
-    Aperture = 0x200,
-    ShutterSpeed = 0x100,
-    _Reserved0 = 0x80,
-    ExpCompExcludeAB = 0x40,
-    ABShotRemainNumber = 0x20,
-    BatteryState = 0x10,
-    CurrentLensFocalLength = 0x8,
-    MediaStatus = 0x4,
-    MediaFreeSpace = 0x2,
-    FrameBufferState = 0x1,
+    ABSetting=0x8000,
+    ABValue=0x4000,
+    ExpCompensation=0x2000,
+    ISOSpeed=0x1000,
+    ISOAuto=0x800,
+    ProgramShift=0x400,
+    Aperture=0x200,
+    ShutterSpeed=0x100,
+    _Reserved0=0x80,
+    ExpCompExcludeAB=0x40,
+    ABShotRemainNumber=0x20,
+    BatteryState=0x10,
+    CurrentLensFocalLength=0x8,
+    MediaStatus=0x4,
+    MediaFreeSpace=0x2,
+    FrameBufferState=0x1,
 )
 
 _CamDataGroup1 = Struct(
-    '_Header' / Default(Int8un, 0), # arbitrary value for parity
+    '_Header' / Default(Int8un, 0),  # arbitrary value for parity
     'FieldPresent' / _CamDataGroup1FieldPresent,
     'ShutterSpeed' / Default(_IfDefined('ShutterSpeed', Int8un), 0),
     'Aperture' / Default(_IfDefined('Aperture', Int8un), 0),
@@ -99,26 +103,26 @@ _CamDataGroup1 = Struct(
 
 _CamDataGroup2FieldPresent = FlagsEnum(
     Int16ub,
-    _Reserved3 = 0x8000,
-    _Reserved2 = 0x4000,
-    _Reserved1 = 0x2000,
-    _Reserved0 = 0x1000,
-    AEMeteringMode = 0x800,
-    ExposureMode = 0x400,
-    SpecialMode = 0x200,
-    DriveMode = 0x100,
-    ImageQuality = 0x80,
-    Resolution = 0x40,
-    WhiteBalance = 0x20,
-    _Reserved5 = 0x10,
-    FlashSetting = 0x8,
-    FlashMode = 0x4,
-    _Reserved4 = 0x2,
-    FlashType = 0x1,
+    _Reserved3=0x8000,
+    _Reserved2=0x4000,
+    _Reserved1=0x2000,
+    _Reserved0=0x1000,
+    AEMeteringMode=0x800,
+    ExposureMode=0x400,
+    SpecialMode=0x200,
+    DriveMode=0x100,
+    ImageQuality=0x80,
+    Resolution=0x40,
+    WhiteBalance=0x20,
+    _Reserved5=0x10,
+    FlashSetting=0x8,
+    FlashMode=0x4,
+    _Reserved4=0x2,
+    FlashType=0x1,
 )
 
 _CamDataGroup2 = Struct(
-    '_Header' / Default(Int8un, 0), # arbitrary value for parity
+    '_Header' / Default(Int8un, 0),  # arbitrary value for parity
     'FieldPresent' / _CamDataGroup2FieldPresent,
     'DriveMode' / Default(_IfDefined('DriveMode', _DriveMode), 0),
     'SpecialMode' / Default(_IfDefined('SpecialMode', _SpecialMode), 0),
@@ -141,26 +145,26 @@ _CamDataGroup2 = Struct(
 
 _CamDataGroup3FieldPresent = FlagsEnum(
     Int16ub,
-    LensTeleFocalLength = 0x8000,
-    LensWideFocalLength = 0x4000,
-    BatteryKind = 0x2000,
-    ColorMode = 0x1000,
-    ColorSpace = 0x800,
-    _Reserved2 = 0x400,
-    _Reserved1 = 0x200,
-    _Reserved0 = 0x100,
-    DestToSave = 0x80,
-    _Reserved6 = 0x40,
-    TimerSound = 0x20,
-    _Reserved5 = 0x10,
-    _Reserved4 = 0x8,
-    _Reserved3 = 0x4,
-    AFBeep = 0x2,
-    AFAuxLight = 0x1,
+    LensTeleFocalLength=0x8000,
+    LensWideFocalLength=0x4000,
+    BatteryKind=0x2000,
+    ColorMode=0x1000,
+    ColorSpace=0x800,
+    _Reserved2=0x400,
+    _Reserved1=0x200,
+    _Reserved0=0x100,
+    DestToSave=0x80,
+    _Reserved6=0x40,
+    TimerSound=0x20,
+    _Reserved5=0x10,
+    _Reserved4=0x8,
+    _Reserved3=0x4,
+    AFBeep=0x2,
+    AFAuxLight=0x1,
 )
 
 _CamDataGroup3 = Struct(
-    '_Header' / Default(Int8un, 0), # arbitrary value for parity
+    '_Header' / Default(Int8un, 0),  # arbitrary value for parity
     'FieldPresent' / _CamDataGroup3FieldPresent,
     '_Reserved0' / Default(_IfDefined('_Reserved0', Int8un), 0),
     '_Reserved1' / Default(_IfDefined('_Reserved1', Int8un), 0),
@@ -182,7 +186,7 @@ _CamDataGroup3 = Struct(
 )
 
 _CamCaptStatus = Struct(
-    '_Header' / Int8un, # arbitrary value for parity
+    '_Header' / Int8un,  # arbitrary value for parity
     'ImageId' / Int8un,
     'ImageDBHead' / Int8un,
     'ImageDBTail' / Int8un,
@@ -192,14 +196,14 @@ _CamCaptStatus = Struct(
 )
 
 _SnapCommand = Struct(
-    '_Header' / Default(Int8un, 0), # arbitrary value for parity
+    '_Header' / Default(Int8un, 0),  # arbitrary value for parity
     'CaptureMode' / _CaptureMode,
     'CaptureAmount' / Int8un,
     '_Parity' / Default(Int8un, 0)
 )
 
 _PictFileInfo2 = Struct(
-    '_Unknown0' / Bytes(12), # ?
+    '_Unknown0' / Bytes(12),  # ?
     'FileAddress' / Int32ul,
     'FileSize' / Int32ul,
     'PathNameOffset' / Int32ul,
@@ -209,7 +213,7 @@ _PictFileInfo2 = Struct(
     'SizeY' / Int16ul,
     'PathName' / CString(),
     'FileName' / CString(),
-    '_Unknown1' / Bytes(2), # ?
+    '_Unknown1' / Bytes(2),  # ?
 )
 
 _BigPartialPictFile = Struct(

@@ -1,9 +1,11 @@
 import os
 from setuptools import setup, find_packages
 
+
 def read(filename):
     with open(os.path.join(os.path.dirname(__file__), filename)) as f:
         return f.read()
+
 
 setup(
     name='sigma-ptpy',
