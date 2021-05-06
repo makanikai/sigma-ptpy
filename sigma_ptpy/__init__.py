@@ -20,6 +20,22 @@ handler = RainbowLoggingHandler(sys.stderr)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+def bytes_to_hex(b):
+    return " ".join(list(map(lambda s: format(s, "02x"), b[:128])))
+
+def dict_to_payload_container(kwargs):
+    field_present = dict((k, 1) for k in kwargs.keys())
+    return Container(
+        FieldPresent = Container(**field_present),
+        **kwargs)
+
+def payload_container_to_dict(container):
+    vals = dict()
+    for k, v in container.FieldPresent.items():
+        if v:
+            vals[k] = container[k]
+    return vals
+
 class SigmaPTPy(SigmaPTP, USB):
 
     def __init__(self, *args, **kwargs):
@@ -50,21 +66,22 @@ class SigmaPTPy(SigmaPTP, USB):
             TransactionID=self._transaction,
             Parameter=[])
         response = self.recv(ptp)
-        logger.debug("SigmaPTPy receives {}".format(response.Data))
-        return self._parse_if_data(response, schema)
+        logger.debug("RECV {} {}".format(opcode, bytes_to_hex(response.Data)))
+        return payload_container_to_dict(self._parse_if_data(response, schema))
 
-    def set_cam_data_group1(self, data):
-        return self._set_cam_data_group('SigmaSetCamDataGroup1', self._CamDataGroup1, data)
+    def set_cam_data_group1(self, **kwargs):
+        return self._set_cam_data_group('SigmaSetCamDataGroup1', self._CamDataGroup1, kwargs)
 
-    def set_cam_data_group2(self, data):
-        return self._set_cam_data_group('SigmaSetCamDataGroup2', self._CamDataGroup2, data)
+    def set_cam_data_group2(self, **kwargs):
+        return self._set_cam_data_group('SigmaSetCamDataGroup2', self._CamDataGroup2, kwargs)
 
-    def set_cam_data_group3(self, data):
-        return self._set_cam_data_group('SigmaSetCamDataGroup3', self._CamDataGroup3, data)
+    def set_cam_data_group3(self, **kwargs):
+        return self._set_cam_data_group('SigmaSetCamDataGroup3', self._CamDataGroup3, kwargs)
 
-    def _set_cam_data_group(self, opcode, schema, data):
+    def _set_cam_data_group(self, opcode, schema, kwargs):
+        data = dict_to_payload_container(kwargs)
         payload = self._build_if_not_data(data, schema)
-        logger.debug("SigmaPTPy sends {}".format(payload))
+        logger.debug("SEND {} {}".format(opcode, bytes_to_hex(payload)))
         ptp = Container(
             OperationCode=opcode,
             SessionID=self._session,
@@ -79,7 +96,7 @@ class SigmaPTPy(SigmaPTP, USB):
             TransactionID=self._transaction,
             Parameter=[0x00000000])
         response = self.recv(ptp)
-        logger.debug("SigmaPTPy receives {}".format(" ".join(list(map(lambda s: format(s, "02x"), response.Data[:128])))))
+        logger.debug("RECV SigmaGetCamCaptStatus {}".format(bytes_to_hex(response.Data)))
         return self._parse_if_data(response, self._CamCaptStatus)
 
     def get_pict_file_info2(self):
@@ -89,7 +106,7 @@ class SigmaPTPy(SigmaPTP, USB):
             TransactionID=self._transaction,
             Parameter=[])
         response = self.recv(ptp)
-        logger.debug("SigmaPTPy receives {}".format(" ".join(list(map(lambda s: format(s, "02x"), response.Data[:128])))))
+        logger.debug("RECV SigmaGetPictFileInfo2 {}".format(bytes_to_hex(response.Data)))
         return self._parse_if_data(response, self._PictFileInfo2)
 
     def get_view_frame(self):
@@ -100,8 +117,8 @@ class SigmaPTPy(SigmaPTP, USB):
             SessionID=self._session,
             TransactionID=self._transaction,
             Parameter=[])
-        resp = self.recv(ptp)
-        return resp.Data[10:]
+        response = self.recv(ptp)
+        return response.Data[10:]
 
     def snap_command(self, capture_mode='GeneralCapture', capture_amount=1):
         data = Container(
