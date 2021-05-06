@@ -1,4 +1,3 @@
-import cv2
 import logging
 import numpy as np
 import sys
@@ -102,8 +101,7 @@ class SigmaPTPy(SigmaPTP, USB):
             TransactionID=self._transaction,
             Parameter=[])
         resp = self.recv(ptp)
-        jpeg = resp.Data[10:]
-        return cv2.imdecode(np.fromstring(jpeg, np.uint8), cv2.IMREAD_COLOR)
+        return resp.Data[10:]
 
     def snap_command(self, capture_mode='GeneralCapture', capture_amount=1):
         data = Container(
