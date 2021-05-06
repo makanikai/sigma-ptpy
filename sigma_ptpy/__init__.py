@@ -77,6 +77,16 @@ class SigmaPTPy(SigmaPTP, USB):
         logger.debug("SigmaPTPy receives {}".format(" ".join(list(map(lambda s: format(s, "02x"), response.Data[:128])))))
         return self._parse_if_data(response, self._CamCaptStatus)
 
+    def get_pict_file_info2(self):
+        ptp = Container(
+            OperationCode='SigmaGetPictFileInfo2',
+            SessionID=self._session,
+            TransactionID=self._transaction,
+            Parameter=[])
+        response = self.recv(ptp)
+        logger.debug("SigmaPTPy receives {}".format(" ".join(list(map(lambda s: format(s, "02x"), response.Data[:128])))))
+        return self._parse_if_data(response, self._PictFileInfo2)
+
     def get_view_frame(self):
         '''Load a live-view image from a camera.'''
 
@@ -101,3 +111,12 @@ class SigmaPTPy(SigmaPTP, USB):
             TransactionID=self._transaction,
             Parameter=[])
         return self.send(ptp, payload)
+
+    def get_big_partial_pict_file(self, store_address, start_address, max_length):
+        ptp = Container(
+            OperationCode='SigmaGetBigPartialPictFile',
+            SessionID=self._session,
+            TransactionID=self._transaction,
+            Parameter=[store_address, start_address, max_length])
+        response = self.recv(ptp)
+        return self._parse_if_data(response, self._BigPartialPictFile)

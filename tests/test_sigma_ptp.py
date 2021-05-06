@@ -135,5 +135,18 @@ class TestSigmaPTP(unittest.TestCase):
         self.assertEqual(res.CaptStatus, 'ImageGenerationInProgress')
         self.assertEqual(res.DestinationToSave, 'Both')
 
+    def test_PictFileInfo2_RecvData(self):
+        fmt = SigmaPTP()._PictFileInfo2
+
+        res = fmt.parse(b"\x38\x00\x00\x00\x01\x00\x00\x00\x0C\x00\x00\x00\x80\x05\x00\x57\x42\x3E\x0A\x00\x24\x00\x00\x00\x2D\x00\x00\x00\x4A\x50\x47\x00\x70\x17\xA0\x0F\x31\x30\x30\x53\x49\x47\x4D\x41\x00\x53\x44\x49\x4D\x30\x30\x30\x31\x2E\x4A\x50\x47\x00\x03\x00")
+        self.assertEqual(res.FileAddress, 0x57000580)
+        self.assertEqual(res.FileSize, 0x000a3e42)
+        self.assertEqual(res.PictureFormat, b"JPG")
+        self.assertEqual(res.SizeX, 6000)
+        self.assertEqual(res.SizeY, 4000)
+        self.assertEqual(res.PathName, b"100SIGMA")
+        self.assertEqual(res.FileName, b"SDIM0001.JPG")
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,11 +1,11 @@
 import logging
 from ptpy import PTP
 from construct import (
-    Array, BitsInteger, Bitwise, Container, Default, Enum, Int16sb,
+    Array, BitsInteger, Bitwise, Bytes, Container, Default, Enum, Int16sb,
     Int16sl, Int16sn, Int16ub, Int16ul, Int16un, Int32sb, Int32sl, Int32sn,
     Int32ub, Int32ul, Int32un, Int64sb, Int64sl, Int64sn, Int64ub, Int64ul,
     Int64un, Int8sb, Int8sl, Int8sn, Int8ub, Int8ul, Int8un, Pass, Padding,
-    PrefixedArray, Struct, Switch, If
+    PrefixedArray, Struct, Switch, If, String, CString, GreedyBytes
 )
 
 logger = logging.getLogger(__name__)
@@ -255,6 +255,25 @@ class SigmaPTP(PTP):
             '_Parity' / Default(Int8un, 0)
         )
 
+        self._PictFileInfo2 = Struct(
+            '_A' / Bytes(12), # ?
+            'FileAddress' / Int32ul,
+            'FileSize' / Int32ul,
+            'PathNameOffset' / Int32ul,
+            'FileNameOffset' / Int32ul,
+            'PictureFormat' / String(4),
+            'SizeX' / Int16ul,
+            'SizeY' / Int16ul,
+            'PathName' / CString(),
+            'FileName' / CString(),
+            '_C' / Bytes(2), # ?
+        )
+
+        self._BigPartialPictFile = Struct(
+            'AcquiredSize' / Int32ul,
+            'PartialData' / GreedyBytes
+        )
+
         super(SigmaPTP, self).__init__(*args, **kwargs)
 
     def _OperationCode(self, **vendor_operations):
@@ -265,7 +284,9 @@ class SigmaPTP(PTP):
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
             SigmaSnapCommand=0x901B,
+            SigmaGetBigPartialPictFile=0x9022,
             SigmaGetViewFrame=0x902B,
+            SigmaGetPictFileInfo2=0x902D,
             SigmaConfigApi=0x9035,
             **vendor_operations
         )
@@ -278,7 +299,9 @@ class SigmaPTP(PTP):
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
             SigmaSnapCommand=0x901B,
+            SigmaGetBigPartialPictFile=0x9022,
             SigmaGetViewFrame=0x902B,
+            SigmaGetPictFileInfo2=0x902D,
             SigmaConfigApi=0x9035,
             **vendor_operations
         )
