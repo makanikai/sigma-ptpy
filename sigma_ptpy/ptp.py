@@ -1,3 +1,4 @@
+import enum
 import logging
 from ptpy import PTP
 from construct import (
@@ -5,10 +6,171 @@ from construct import (
     Int16sl, Int16sn, Int16ub, Int16ul, Int16un, Int32sb, Int32sl, Int32sn,
     Int32ub, Int32ul, Int32un, Int64sb, Int64sl, Int64sn, Int64ub, Int64ul,
     Int64un, Int8sb, Int8sl, Int8sn, Int8ub, Int8ul, Int8un, Pass, Padding,
-    PrefixedArray, Struct, Switch, If, String, CString, GreedyBytes
+    PrefixedArray, Struct, Switch, If, String, CString, GreedyBytes, Mapping
 )
 
 logger = logging.getLogger(__name__)
+
+class DriveMode(enum.IntEnum):
+    Null = 0 #: Uninitialized
+    SingleCapture = 1 #: Single Capture
+    ContinuousCapture = 2 #: Continuous Capture
+    TwoSecondsSelfTimer = 3 #: 2s Self Timer
+    TenSecondsSelfTimer = 4 #: 10s Self Timer
+    IntervalTimer = 7 #: Interval Timer
+
+class SpecialMode(enum.IntEnum):
+    Null = 0x00 #: Uninitialized / None
+    LiveView = 0x02 #: Live View Mode (Displays the live view in the PC side.)
+
+class ExposureMode(enum.IntEnum):
+    Null = 0 #: Uninitialized
+    ProgramAuto = 1 #: P
+    AperturePriority = 2 #: A
+    ShutterPriority = 3 #: S
+    Manual = 4 #: M
+    C1 = 0x10 #: C1
+    C2 = 0x20 #: C2
+    C3 = 0x40 #: C3
+    Star = 0x80 #: I don't know what's this.
+
+class AEMeteringMode(enum.IntEnum):
+    Null = 0 #: Uninitialized
+    Evaluative = 1 #: Evaluative
+    CenterWeightedAverage = 2 #: Center-weighted Average
+    CenterArea = 3 #: Center Area
+    Spot = 4 #: Spot
+
+class FlashType(enum.Enum):
+    Null = 0
+    InternalPopupFlash = 1 #: Internal pop-up flash
+    ExternalFlash = 2 #: External Flash (SIGMA products Flash)
+
+class FlashMode(enum.Enum):
+    Normal = 0 #: Uninitialized / Normal
+    RedEyeReduction = 0x01
+    FPEmission = 0x02
+    MultiFlash = 0x04
+    WirelessFlash1 = 0x08
+    WirelessFlash2 = 0x10
+    WirelessFlash3 = 0x20
+    SlowSync = 0x40 #: Slow synchronization
+
+class FlashSetting(enum.Enum):
+    Null = 0 #: Uninitialized
+    TTLAuto = 0x1 #: TTL-Auto
+    TTLManual = 0x2 #: TTL-Manual
+    EmissionDisabled = 0x80 #: Emission disabled (charging in progress) * Read Only
+    ExposureWarning = 0x81 #: Exposure warning (The strobe mark flashes.) * Read Only
+
+class WhiteBalance(enum.Enum):
+    Null = 0x0
+    Auto = 0x1
+    Sunlight = 0x2
+    Shade = 0x3
+    Overcast = 0x4
+    Incandescent = 0x5
+    Fluorescent = 0x6
+    Flash = 0x7
+    Custom1 = 0x8
+    CustomCapt1 = 0x9
+    Custom2 = 0xA
+    CustomCapt2 = 0xB
+    Custom3 = 0xC
+    CustomCapt3 = 0xD
+    ColorTemp = 0x0E #: Color Temperature
+    LightSource = 0x0F #: Auto (Light Source Priority)
+
+class Resolution(enum.Enum):
+    Null = 0x0
+    High = 0x1
+    Medium = 0x2
+    Low = 0x4
+
+class ImageQuality(enum.Enum):
+    JPEGFine = 0x2
+    JPEGNormal = 0x4
+    JPEGBasic = 0x8
+    DNG = 0x10
+    DNGAndJPEG = 0x12
+
+class ColorSpace(enum.Enum):
+    Null = 0x00
+    sRGB = 0x01
+    AdobeRGB = 0x02
+
+class ColorMode(enum.Enum):
+    Normal = 0x00
+    Sepia = 0x01
+    WhiteAndBlack = 0x02
+    Standard = 0x03
+    Vivid = 0x04
+    Neutral = 0x05
+    Portrait = 0x06
+    Landscape = 0x07
+    FovClassicBlue = 0x08
+    Sunset = 0x09
+    Forest = 0x0A
+    Cinema = 0x0B
+    FovClassicYellow = 0x0C
+
+class BatteryKind(enum.Enum):
+    Int8un
+    default = Pass
+    Null = 0x00
+    BodyBattery = 0x01
+    ACAdapter = 0x02
+
+class AFAuxLight(enum.Enum):
+    Int8un
+    default = Pass
+    Null = 0x00
+    ON = 0x01
+    OFF = 0x02
+
+class CaptureMode(enum.Enum):
+    Null = 0x00
+    GeneralCapt = 0x01
+    NonAFCapt = 0x02
+    AFDriveOnly = 0x03
+    StartAF = 0x04
+    StopAF = 0x05
+    StartCap = 0x06
+    StopCapt = 0x07
+    StartRecMovieAF = 0x10 #: Start Recording Movie with AF
+    StartRecMovie = 0x20 #: Start Recording Movie without AF
+    StopRecMovie = 0x30 #: Stop Recording Movie
+
+class CaptStatus(enum.Enum):
+    Cleared = 0x0000 #: Uninitialized / Cleared
+    ShootInProgress = 0x0001 #: Shooting standby / In operation
+    ShootSuccess = 0x0002 #: Shooting succeeded (Shooting sequence without image generation sequence)
+    ImageGenInProgress = 0x0004 #: Image generation or custom white balance processing in progress
+    ImageGenCompleted = 0x0005 #: Image data (file) generation completed
+    StopMovieRec = 0x0006 #: Preparation for stopping the movie recording
+    MovieGenCompleted = 0x0007 #: Movie file generation completed
+    AFSuccess = 0x8001 #: AF success (AFOnly mode only)
+    CWBSuccess = 0x8002 #: Custom white balance acquirement succeeded (CWB Capture mode only).
+    ImageDataStorageCompleted = 0x8003 #: Image data storage completed
+    Interrupted = 0x8004 #: Other interrupt or exit without error (successfully exited)
+    AFFailed = 0x6001 #: AF failure (in all shooting modes that use AF)
+    BufferFull = 0x6002
+    CWBFailed = 0x6003 #: Custom white balance image acquirement failed.
+    ImageGenFailed = 0x6004 #: Image generation failed due to an error occurred during image generation.
+    Failed = 0x6005 #: General failure (other than any of the above-mentioned failures.)
+
+class DestToSave(enum.IntEnum):
+    Null = 0x00 #: Uninitialized
+    InCamera = 0x01 #: In-camera media
+    InComputer = 0x02 #: Drive in PC side
+    Both = 0x03 #: In-camera media + Drive in PC side
+
+def _enum(subcon, enum_class):
+    return Mapping(
+        subcon,
+        dict((e.value, e) for e in enum_class),
+        dict((e, e.value) for e in enum_class),
+        decdefault=Pass, encdefault=Pass)
 
 class SigmaPTP(PTP):
 
@@ -57,195 +219,32 @@ class SigmaPTP(PTP):
         '_Reserved2' / Default(BitsInteger(1), 0),
         '_Reserved1' / Default(BitsInteger(1), 0),
         '_Reserved0' / Default(BitsInteger(1), 0),
-        'DestinationToSave' / Default(BitsInteger(1), 0),
+        'DestToSave' / Default(BitsInteger(1), 0),
         '_Reserved6' / Default(BitsInteger(1), 0),
         'TimerSound' / Default(BitsInteger(1), 0),
         '_Reserved5' / Default(BitsInteger(1), 0),
         '_Reserved4' / Default(BitsInteger(1), 0),
         '_Reserved3' / Default(BitsInteger(1), 0),
         'AFBeep' / Default(BitsInteger(1), 0),
-        'AFAuxiliaryLight' / Default(BitsInteger(1), 0),
+        'AFAuxLight' / Default(BitsInteger(1), 0),
     ))
-    _DriveMode = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0,
-        SingleCapture=1,
-        ContinuousCapture=2,
-        TwoSecondsSelfTimer=3,
-        TenSecondsSelfTimer=4,
-        IntervalTimer=7
-    )
-    _SpecialMode = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0x00,
-        LiveViewMode=0x02
-    )
-    _ExposureMode = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0,
-        ProgramAuto=1,
-        AperturePriority=2,
-        ShutterPriority=3,
-        Manual=4
-    )
-    _AEMeteringMode = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0,
-        Evaluative=1,
-        CenterWeightedAverage=2,
-        CenterArea=3,
-        Spot=4
-    )
-    _FlashType = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0,
-        InternalPopupFlash=1,
-        ExternalFlash=2
-    )
-    _FlashMode = Enum(
-        Int8un,
-        default=Pass,
-        Normal=0,
-        RedEyeReduction=0x01,
-        FPEmission=0x02,
-        MultiFlash=0x04,
-        WirelessFlash1=0x08,
-        WirelessFlash2=0x10,
-        WirelessFlash3=0x20,
-        SlowSynchronization=0x40,
-    )
-    _FlashSetting = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0,
-        TTLAuto=0x1,
-        TTLManual=0x2,
-        EmissionDisabled=0x80,
-        ExposureWarning=0x81,
-    )
-    _WhiteBalance = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0x0,
-        Auto=0x1,
-        Sunlight=0x2,
-        Shade=0x3,
-        Overcast=0x4,
-        Incandescent=0x5,
-        Fluorescent=0x6,
-        Flash=0x7,
-        Custom1=0x8,
-        CustomCapture1=0x9,
-        Custom2=0xA,
-        CustomCapture2=0xB,
-        Custom3=0xC,
-        CustomCapture3=0xD,
-        ColorTemparature=0x0E,
-        LightSourcePriority=0x0F
-    )
-    _Resolution = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0x0,
-        High=0x1,
-        Medium=0x2,
-        Low=0x4
-    )
-    _ImageQuality = Enum(
-        Int8un,
-        default=Pass,
-        JpegFine=0x2,
-        JpegNormal=0x4,
-        JpegBasic=0x8,
-        Dng=0x10,
-        DngAndJpeg=0x12
-    )
-    _ColorSpace = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0x00,
-        sRGB=0x01,
-        AdobeRGB=0x02,
-    )
-    _ColorMode = Enum(
-        Int8un,
-        default=Pass,
-        Normal=0x00,
-        Sepia=0x01,
-        WhiteAndBlack=0x02,
-        Standard=0x03,
-        Vivid=0x04,
-        Neutral=0x05,
-        Portrait=0x06,
-        Landscape=0x07,
-        FovClassicBlue=0x08,
-        Sunset=0x09,
-        Forest=0x0A,
-        Cinema=0x0B,
-        FovClassicYellow=0x0C,
-    )
-    _BatteryKind = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0x00,
-        BodyBattery=0x01,
-        ACAdapter=0x02,
-    )
-    _AFAuxiliaryLight = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0x00,
-        ON=0x01,
-        OFF=0x02,
-    )
-    _CaptureMode = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0x00,
-        GeneralCapture=0x01,
-        NonAFCapture=0x02,
-        AFDriveOnly=0x03,
-        StartAF=0x04,
-        StopAF=0x05,
-        StartCapture=0x06,
-        StopCapture=0x07,
-        StartRecodingMovieWithAF=0x10,
-        StartRecodingMovieWithoutAF=0x20,
-        StopRecodingMovie=0x30,
-    )
-    _CaptStatus = Enum(
-        Int16ul,
-        default=Pass,
-        Cleared=0x0000, # Uninitialized / Cleared
-        ShootingInProgress=0x0001, # Shooting standby / In operation
-        ShootingSuccess=0x0002, # Shooting succeeded (Shooting sequence without image generation sequence)
-        ImageGenerationInProgress=0x0004, # Image generation or custom white balance processing in progress
-        ImageGenerationCompleted=0x0005, # Image data (file) generation completed
-        StoppingMovieRecording=0x0006, # Preparation for stopping the movie recording
-        MovieGenerationCompleted=0x0007, # Movie file generation completed
-        AFSuccess=0x8001, # AF success (AFOnly mode only)
-        CWBSuccess=0x8002, # Custom white balance acquirement succeeded (CWB Capture mode only).
-        ImageDataStorageCompleted=0x8003, # Image data storage completed
-        Interrupted=0x8004, # Other interrupt or exit without error (successfully exited)
-        AFFailed=0x6001, # AF failure (in all shooting modes that use AF)
-        BufferFull=0x6002,
-        CWBFailed=0x6003, # Custom white balance image acquirement failed.
-        ImageGenerationFailed=0x6004, # Image generation failed due to an error occurred during image generation.
-        Failed=0x6005, # General failure (other than any of the above-mentioned failures.)
-    )
-    _DestinationToSave = Enum(
-        Int8un,
-        default=Pass,
-        Uninitialized=0x00,
-        InCamera=0x01, # In-camera media
-        InComputer=0x02, # Drive in PC side
-        Both=0x03, # In-camera media + Drive in PC side
-    )
+    _DriveMode = _enum(Int8un, DriveMode)
+    _SpecialMode = _enum(Int8un, SpecialMode)
+    _ExposureMode = _enum(Int8un, ExposureMode)
+    _AEMeteringMode = _enum(Int8un, AEMeteringMode)
+    _FlashType = _enum(Int8un, FlashType)
+    _FlashMode = _enum(Int8un, FlashMode)
+    _FlashSetting = _enum(Int8un, FlashSetting)
+    _WhiteBalance = _enum(Int8un, WhiteBalance)
+    _Resolution = _enum(Int8un, Resolution)
+    _ImageQuality = _enum(Int8un, ImageQuality)
+    _ColorSpace = _enum(Int8un, ColorSpace)
+    _ColorMode = _enum(Int8un, ColorMode)
+    _BatteryKind = _enum(Int8un, BatteryKind)
+    _AFAuxLight = _enum(Int8un, AFAuxLight)
+    _CaptureMode = _enum(Int8un, CaptureMode)
+    _CaptStatus = _enum(Int16ul, CaptStatus)
+    _DestToSave = _enum(Int8un, DestToSave)
 
     def __init__(self, *args, **kwargs):
         logger.debug("Init SigmaPTP")
@@ -305,14 +304,14 @@ class SigmaPTP(PTP):
             'BatteryKind' / Default(If(lambda x: x.FieldPresent.BatteryKind == 1, self._BatteryKind), 0),
             'LensWideFocalLength' / Default(If(lambda x: x.FieldPresent.LensWideFocalLength == 1, Int16ul), 0),
             'LensTeleFocalLength' / Default(If(lambda x: x.FieldPresent.LensTeleFocalLength == 1, Int16ul), 0),
-            'AFAuxiliaryLight' / Default(If(lambda x: x.FieldPresent.AFAuxiliaryLight == 1, self._AFAuxiliaryLight), 0),
+            'AFAuxLight' / Default(If(lambda x: x.FieldPresent.AFAuxLight == 1, self._AFAuxLight), 0),
             'AFBeep' / Default(If(lambda x: x.FieldPresent.AFBeep == 1, Int8un), 0),
             '_Reserved3' / Default(If(lambda x: x.FieldPresent._Reserved3 == 1, Int8un), 0),
             '_Reserved4' / Default(If(lambda x: x.FieldPresent._Reserved4 == 1, Int8un), 0),
             '_Reserved5' / Default(If(lambda x: x.FieldPresent._Reserved5 == 1, Int8un), 0),
             'TimerSound' / Default(If(lambda x: x.FieldPresent.TimerSound == 1, Int8un), 0),
             '_Reserved6' / Default(If(lambda x: x.FieldPresent._Reserved6 == 1, Int8un), 0),
-            'DestinationToSave' / Default(If(lambda x: x.FieldPresent.DestinationToSave == 1, self._DestinationToSave), 0),
+            'DestToSave' / Default(If(lambda x: x.FieldPresent.DestToSave == 1, self._DestToSave), 0),
             '_Parity' / Default(Int8un, 0)
         )
 
@@ -322,7 +321,7 @@ class SigmaPTP(PTP):
             'ImageDBHead' / Int8un,
             'ImageDBTail' / Int8un,
             'CaptStatus' / self._CaptStatus,
-            'DestinationToSave' / self._DestinationToSave,
+            'DestToSave' / self._DestToSave,
             '_Parity' / Int8un
         )
 

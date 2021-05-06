@@ -5,7 +5,7 @@ from construct import Container
 from ptpy import USB
 from rainbow_logging_handler import RainbowLoggingHandler
 
-from .ptp import SigmaPTP
+from .ptp import SigmaPTP, CaptureMode
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter(
@@ -37,12 +37,27 @@ def payload_container_to_dict(container):
     return vals
 
 class SigmaPTPy(SigmaPTP, USB):
+    """Operations on the SIGMA fp series.
+
+    Args:
+        device (object): the USB device object.
+        name (str): the name of USB devices for search."""
 
     def __init__(self, *args, **kwargs):
         logger.info("Init SigmaPTPy")
         super(SigmaPTPy, self).__init__(*args, **kwargs)
 
     def config_api(self):
+        """This is the first instruction issued to the camera by the application that uses API.
+
+        After this instruction has been received, another custom command can be received until
+        the USB connection is shut down or the sgm_CloseApplication instruction is received.
+        When this function is executed, API resets the camera setting to the default.
+        (When API connection is closed, the camera setting returns to the setting value
+        which the user specified before using API. However, the movie/still image setting
+        is synchronized with the switch status.) Furthermore, API does not accept any
+        operation other than the power-off operation.
+        The data to be handled is based on the IFD structure."""
         data = Container(
             OperationCode='SigmaConfigApi',
             SessionID=self._session,
@@ -120,7 +135,7 @@ class SigmaPTPy(SigmaPTP, USB):
         response = self.recv(ptp)
         return response.Data[10:]
 
-    def snap_command(self, capture_mode='GeneralCapture', capture_amount=1):
+    def snap_command(self, capture_mode=CaptureMode.GeneralCapt, capture_amount=1):
         data = Container(
             CaptureMode=capture_mode,
             CaptureAmount=capture_amount

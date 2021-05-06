@@ -1,5 +1,10 @@
 import unittest
 from sigma_ptpy import SigmaPTP
+from sigma_ptpy.ptp import (
+    DriveMode, SpecialMode, ExposureMode, AEMeteringMode, FlashType, FlashMode, FlashSetting,
+    WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
+    BatteryKind, AFAuxLight, CaptureMode, CaptStatus, DestToSave
+)
 
 class TestSigmaPTP(unittest.TestCase):
     def test_CamDataGroup1_ShutterSpeed(self):
@@ -82,41 +87,41 @@ class TestSigmaPTP(unittest.TestCase):
         fmt = SigmaPTP()._CamDataGroup2
         res = fmt.parse(b"\x03\x04\x00\x04\x0B")
         self.assertEqual(res.FieldPresent.ExposureMode, 1)
-        self.assertEqual(res.ExposureMode, 'Manual')
+        self.assertEqual(res.ExposureMode, ExposureMode.Manual)
 
     def test_CamDataGroup2_WhiteBalance(self):
         fmt = SigmaPTP()._CamDataGroup2
         res = fmt.parse(b"\x03\x00\x20\x01\x24")
         self.assertEqual(res.FieldPresent.WhiteBalance, 1)
-        self.assertEqual(res.WhiteBalance, 'Auto')
+        self.assertEqual(res.WhiteBalance, WhiteBalance.Auto)
 
         res = fmt.parse(b"\x03\x00\x20\x06\x29")
         self.assertEqual(res.FieldPresent.WhiteBalance, 1)
-        self.assertEqual(res.WhiteBalance, 'Fluorescent')
+        self.assertEqual(res.WhiteBalance, WhiteBalance.Fluorescent)
 
     def test_CamDataGroup2_RecvData(self):
         fmt = SigmaPTP()._CamDataGroup2
         res = fmt.parse(b"\x0e\x3f\xfc\x07\x02\x04\x01\x00\x03\x00\x00\x00\x01\x01\x10l")
 
         self.assertEqual(res.FieldPresent.DriveMode, 1)
-        self.assertEqual(res.DriveMode, 'IntervalTimer')
+        self.assertEqual(res.DriveMode, DriveMode.IntervalTimer)
         self.assertEqual(res.FieldPresent.SpecialMode, 1)
-        self.assertEqual(res.SpecialMode, 'LiveViewMode')
+        self.assertEqual(res.SpecialMode, SpecialMode.LiveView)
         self.assertEqual(res.FieldPresent.ExposureMode, 1)
-        self.assertEqual(res.ExposureMode, 'Manual')
+        self.assertEqual(res.ExposureMode, ExposureMode.Manual)
         self.assertEqual(res.FieldPresent.AEMeteringMode, 1)
-        self.assertEqual(res.AEMeteringMode, 'Evaluative')
+        self.assertEqual(res.AEMeteringMode, AEMeteringMode.Evaluative)
         self.assertEqual(res.FieldPresent.FlashType, 0)
         self.assertEqual(res.FieldPresent.FlashMode, 1)
-        self.assertEqual(res.FlashMode, 'Normal')
+        self.assertEqual(res.FlashMode, FlashMode.Normal)
         self.assertEqual(res.FieldPresent.FlashSetting, 1)
-        self.assertEqual(res.FlashSetting, 'Uninitialized')
+        self.assertEqual(res.FlashSetting, FlashSetting.Null)
         self.assertEqual(res.FieldPresent.WhiteBalance, 1)
-        self.assertEqual(res.WhiteBalance, 'Auto')
+        self.assertEqual(res.WhiteBalance, WhiteBalance.Auto)
         self.assertEqual(res.FieldPresent.Resolution, 1)
-        self.assertEqual(res.Resolution, 'High')
+        self.assertEqual(res.Resolution, Resolution.High)
         self.assertEqual(res.FieldPresent.ImageQuality, 1)
-        self.assertEqual(res.ImageQuality, 'Dng')
+        self.assertEqual(res.ImageQuality, ImageQuality.DNG)
 
 
     def test_CamDataGroup3_RecvData(self):
@@ -124,23 +129,23 @@ class TestSigmaPTP(unittest.TestCase):
         res = fmt.parse(b"\x10\xff\xa3\x00\x00\x00\x01\x03\x02\x00\xd0\x00\x00\x02\x05\x05\x02\x96")
 
         self.assertEqual(res.FieldPresent.ColorSpace, 1)
-        self.assertEqual(res.ColorSpace, 'sRGB')
+        self.assertEqual(res.ColorSpace, ColorSpace.sRGB)
         self.assertEqual(res.FieldPresent.ColorMode, 1)
-        self.assertEqual(res.ColorMode, 'Standard')
+        self.assertEqual(res.ColorMode, ColorMode.Standard)
         self.assertEqual(res.FieldPresent.BatteryKind, 1)
-        self.assertEqual(res.BatteryKind, 'ACAdapter')
+        self.assertEqual(res.BatteryKind, BatteryKind.ACAdapter)
         self.assertEqual(res.FieldPresent.LensWideFocalLength, 1)
         self.assertEqual(res.LensWideFocalLength, 0xd000)
         self.assertEqual(res.FieldPresent.LensTeleFocalLength, 1)
         self.assertEqual(res.LensTeleFocalLength, 0x0000)
-        self.assertEqual(res.FieldPresent.AFAuxiliaryLight, 1)
-        self.assertEqual(res.AFAuxiliaryLight, 'OFF')
+        self.assertEqual(res.FieldPresent.AFAuxLight, 1)
+        self.assertEqual(res.AFAuxLight, AFAuxLight.OFF)
         self.assertEqual(res.FieldPresent.AFBeep, 1)
         self.assertEqual(res.AFBeep, 0x05)
         self.assertEqual(res.FieldPresent.TimerSound, 1)
         self.assertEqual(res.TimerSound, 0x05)
-        self.assertEqual(res.FieldPresent.DestinationToSave, 1)
-        self.assertEqual(res.DestinationToSave, 'InComputer')
+        self.assertEqual(res.FieldPresent.DestToSave, 1)
+        self.assertEqual(res.DestToSave, DestToSave.InComputer)
 
     def test_CamCaptStatus_RecvData(self):
         fmt = SigmaPTP()._CamCaptStatus
@@ -149,15 +154,15 @@ class TestSigmaPTP(unittest.TestCase):
         self.assertEqual(res.ImageId, 0)
         self.assertEqual(res.ImageDBHead, 0)
         self.assertEqual(res.ImageDBTail, 1)
-        self.assertEqual(res.CaptStatus, 'ShootingInProgress')
-        self.assertEqual(res.DestinationToSave, 'Both')
+        self.assertEqual(res.CaptStatus, CaptStatus.ShootInProgress)
+        self.assertEqual(res.DestToSave, DestToSave.Both)
 
         res = fmt.parse(b"\x06\x00\x00\x01\x04\x00\x03\x0E")
         self.assertEqual(res.ImageId, 0)
         self.assertEqual(res.ImageDBHead, 0)
         self.assertEqual(res.ImageDBTail, 1)
-        self.assertEqual(res.CaptStatus, 'ImageGenerationInProgress')
-        self.assertEqual(res.DestinationToSave, 'Both')
+        self.assertEqual(res.CaptStatus, CaptStatus.ImageGenInProgress)
+        self.assertEqual(res.DestToSave, DestToSave.Both)
 
     def test_PictFileInfo2_RecvData(self):
         fmt = SigmaPTP()._PictFileInfo2
