@@ -1,11 +1,16 @@
 import logging
 import numpy as np
 import sys
+import os
 from construct import Container
 from ptpy import USB
 from rainbow_logging_handler import RainbowLoggingHandler
-
-from .ptp import SigmaPTP, CaptureMode
+from .enum import CaptureMode
+from .schema import (
+    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3,
+    _CamCaptStatus, _SnapCommand, _PictFileInfo2, _BigPartialPictFile
+)
+from .ptp import SigmaPTP
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter(
@@ -15,10 +20,12 @@ formatter = logging.Formatter(
     '[%(threadName)s:%(funcName)s:%(lineno)s] '
     '%(message)s'
 )
+level = "DEBUG" if "SIGMAPTPY_DEBUG" in os.environ else "INFO"
 
 handler = RainbowLoggingHandler(sys.stderr)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+logger.setLevel(level)
 
 def bytes_to_hex(b):
     return " ".join(list(map(lambda s: format(s, "02x"), b[:128])))
@@ -28,13 +35,6 @@ def dict_to_payload_container(kwargs):
     return Container(
         FieldPresent = Container(**field_present),
         **kwargs)
-
-def payload_container_to_dict(container):
-    vals = dict()
-    for k, v in container.FieldPresent.items():
-        if v:
-            vals[k] = container[k]
-    return vals
 
 class SigmaPTPy(SigmaPTP, USB):
     """Operations on the SIGMA fp series.
@@ -66,13 +66,13 @@ class SigmaPTPy(SigmaPTP, USB):
         return self.recv(data)
 
     def get_cam_data_group1(self):
-        return self._get_cam_data_group('SigmaGetCamDataGroup1', self._CamDataGroup1)
+        return self._get_cam_data_group('SigmaGetCamDataGroup1', _CamDataGroup1)
 
     def get_cam_data_group2(self):
-        return self._get_cam_data_group('SigmaGetCamDataGroup2', self._CamDataGroup2)
+        return self._get_cam_data_group('SigmaGetCamDataGroup2', _CamDataGroup2)
 
     def get_cam_data_group3(self):
-        return self._get_cam_data_group('SigmaGetCamDataGroup3', self._CamDataGroup3)
+        return self._get_cam_data_group('SigmaGetCamDataGroup3', _CamDataGroup3)
 
     def _get_cam_data_group(self, opcode, schema):
         ptp = Container(
@@ -82,16 +82,16 @@ class SigmaPTPy(SigmaPTP, USB):
             Parameter=[])
         response = self.recv(ptp)
         logger.debug("RECV {} {}".format(opcode, bytes_to_hex(response.Data)))
-        return payload_container_to_dict(self._parse_if_data(response, schema))
+        return self._parse_if_data(response, schema)
 
     def set_cam_data_group1(self, **kwargs):
-        return self._set_cam_data_group('SigmaSetCamDataGroup1', self._CamDataGroup1, kwargs)
+        return self._set_cam_data_group('SigmaSetCamDataGroup1', _CamDataGroup1, kwargs)
 
     def set_cam_data_group2(self, **kwargs):
-        return self._set_cam_data_group('SigmaSetCamDataGroup2', self._CamDataGroup2, kwargs)
+        return self._set_cam_data_group('SigmaSetCamDataGroup2', _CamDataGroup2, kwargs)
 
     def set_cam_data_group3(self, **kwargs):
-        return self._set_cam_data_group('SigmaSetCamDataGroup3', self._CamDataGroup3, kwargs)
+        return self._set_cam_data_group('SigmaSetCamDataGroup3', _CamDataGroup3, kwargs)
 
     def _set_cam_data_group(self, opcode, schema, kwargs):
         data = dict_to_payload_container(kwargs)
@@ -112,7 +112,7 @@ class SigmaPTPy(SigmaPTP, USB):
             Parameter=[0x00000000])
         response = self.recv(ptp)
         logger.debug("RECV SigmaGetCamCaptStatus {}".format(bytes_to_hex(response.Data)))
-        return self._parse_if_data(response, self._CamCaptStatus)
+        return self._parse_if_data(response, _CamCaptStatus)
 
     def get_pict_file_info2(self):
         ptp = Container(
@@ -122,7 +122,7 @@ class SigmaPTPy(SigmaPTP, USB):
             Parameter=[])
         response = self.recv(ptp)
         logger.debug("RECV SigmaGetPictFileInfo2 {}".format(bytes_to_hex(response.Data)))
-        return self._parse_if_data(response, self._PictFileInfo2)
+        return self._parse_if_data(response, _PictFileInfo2)
 
     def get_view_frame(self):
         '''Load a live-view image from a camera.'''
@@ -140,7 +140,7 @@ class SigmaPTPy(SigmaPTP, USB):
             CaptureMode=capture_mode,
             CaptureAmount=capture_amount
         )
-        payload = self._build_if_not_data(data, self._SnapCommand)
+        payload = self._build_if_not_data(data, _SnapCommand)
         ptp = Container(
             OperationCode='SigmaSnapCommand',
             SessionID=self._session,
@@ -155,4 +155,4 @@ class SigmaPTPy(SigmaPTP, USB):
             TransactionID=self._transaction,
             Parameter=[store_address, start_address, max_length])
         response = self.recv(ptp)
-        return self._parse_if_data(response, self._BigPartialPictFile)
+        return self._parse_if_data(response, _BigPartialPictFile)
