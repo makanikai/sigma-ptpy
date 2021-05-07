@@ -1,12 +1,13 @@
 """Schema definitions for the SIGMA fp series"""
 
 from construct import (
-    Adapter, Bytes, Default, FlagsEnum,
-    Int16ub, Int16ul, Int32ul, Int8sn, Int8un,
+    Adapter, Bytes, FlagsEnum,
+    Int16ub, Int16ul, Int32ul, Int8un,
     Pass, Struct, If, String, CString, GreedyBytes, Mapping
 )
 from .enum import (
-    DriveMode, SpecialMode, ExposureMode, AEMeteringMode, FlashType, FlashMode, FlashSetting,
+    ProgramShift, ISOAuto, ABSetting, DriveMode, SpecialMode,
+    ExposureMode, AEMeteringMode, FlashType, FlashMode, FlashSetting,
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
     BatteryKind, AFAuxLight, CaptureMode, CaptStatus, DestToSave
 )
@@ -41,6 +42,9 @@ def _IfDefined(key, subcon):
     return If(lambda x: key in x.FieldPresent and x.FieldPresent[key], subcon)
 
 
+_ProgramShift = _Enum(Int8un, ProgramShift)
+_ISOAuto = _Enum(Int8un, ISOAuto)
+_ABSetting = _Enum(Int8un, ABSetting)
 _DriveMode = _Enum(Int8un, DriveMode)
 _SpecialMode = _Enum(Int8un, SpecialMode)
 _ExposureMode = _Enum(Int8un, ExposureMode)
@@ -80,25 +84,25 @@ _CamDataGroup1FieldPresent = FlagsEnum(
 )
 
 _CamDataGroup1 = Struct(
-    '_Header' / Default(Int8un, 0),  # arbitrary value for parity
+    '_Header' / Int8un,  # arbitrary value for parity
     'FieldPresent' / _CamDataGroup1FieldPresent,
-    'ShutterSpeed' / Default(_IfDefined('ShutterSpeed', Int8un), 0),
-    'Aperture' / Default(_IfDefined('Aperture', Int8un), 0),
-    'ProgramShift' / Default(_IfDefined('ProgramShift', Int8sn), 0),
-    'ISOAuto' / Default(_IfDefined('ISOAuto', Int8un), 0),
-    'ISOSpeed' / Default(_IfDefined('ISOSpeed', Int8un), 0),
-    'ExpCompensation' / Default(_IfDefined('ExpCompensation', Int8un), 0),
-    'ABValue' / Default(_IfDefined('ABValue', Int8un), 0),
-    'ABSetting' / Default(_IfDefined('ABSetting', Int8un), 0),
-    'FrameBufferState' / Default(_IfDefined('FrameBufferState', Int8un), 0),
-    'MediaFreeSpace' / Default(_IfDefined('MediaFreeSpace', Int16ul), 0),
-    'MediaStatus' / Default(_IfDefined('MediaStatus', Int8un), 0),
-    'CurrentLensFocalLength' / Default(_IfDefined('CurrentLensFocalLength', _FixedPointValue(Int16ul, 4)), 0),
-    'BatteryState' / Default(_IfDefined('BatteryState', Int8un), 0),
-    'ABShotRemainNumber' / Default(_IfDefined('ABShotRemainNumber', Int8un), 0),
-    'ExpCompExcludeAB' / Default(_IfDefined('ExpCompExcludeAB', Int8un), 0),
-    '_Reserved0' / Default(_IfDefined('_Reserved0', Int8un), 0),
-    '_Parity' / Default(Int8un, 0)
+    'ShutterSpeed' / _IfDefined('ShutterSpeed', Int8un),
+    'Aperture' / _IfDefined('Aperture', Int8un),
+    'ProgramShift' / _IfDefined('ProgramShift', _ProgramShift),
+    'ISOAuto' / _IfDefined('ISOAuto', _ISOAuto),
+    'ISOSpeed' / _IfDefined('ISOSpeed', Int8un),
+    'ExpCompensation' / _IfDefined('ExpCompensation', Int8un),
+    'ABValue' / _IfDefined('ABValue', Int8un),
+    'ABSetting' / _IfDefined('ABSetting', _ABSetting),
+    'FrameBufferState' / _IfDefined('FrameBufferState', Int8un),
+    'MediaFreeSpace' / _IfDefined('MediaFreeSpace', Int16ul),
+    'MediaStatus' / _IfDefined('MediaStatus', Int8un),
+    'CurrentLensFocalLength' / _IfDefined('CurrentLensFocalLength', _FixedPointValue(Int16ul, 4)),
+    'BatteryState' / _IfDefined('BatteryState', Int8un),
+    'ABShotRemainNumber' / _IfDefined('ABShotRemainNumber', Int8un),
+    'ExpCompExcludeAB' / _IfDefined('ExpCompExcludeAB', Int8un),
+    '_Reserved0' / _IfDefined('_Reserved0', Int8un),
+    '_Parity' / Int8un,
 )
 
 _CamDataGroup2FieldPresent = FlagsEnum(
@@ -122,25 +126,25 @@ _CamDataGroup2FieldPresent = FlagsEnum(
 )
 
 _CamDataGroup2 = Struct(
-    '_Header' / Default(Int8un, 0),  # arbitrary value for parity
+    '_Header' / Int8un,  # arbitrary value for parity
     'FieldPresent' / _CamDataGroup2FieldPresent,
-    'DriveMode' / Default(_IfDefined('DriveMode', _DriveMode), 0),
-    'SpecialMode' / Default(_IfDefined('SpecialMode', _SpecialMode), 0),
-    'ExposureMode' / Default(_IfDefined('ExposureMode', _ExposureMode), 0),
-    'AEMeteringMode' / Default(_IfDefined('AEMeteringMode', _AEMeteringMode), 0),
-    '_Reserved0' / Default(_IfDefined('_Reserved0', Int8un), 0),
-    '_Reserved1' / Default(_IfDefined('_Reserved1', Int8un), 0),
-    '_Reserved2' / Default(_IfDefined('_Reserved2', Int8un), 0),
-    '_Reserved3' / Default(_IfDefined('_Reserved3', Int8un), 0),
-    'FlashType' / Default(_IfDefined('FlashType', _FlashType), 0),
-    '_Reserved4' / Default(_IfDefined('_Reserved4', Int8un), 0),
-    'FlashMode' / Default(_IfDefined('FlashMode', _FlashMode), 0),
-    'FlashSetting' / Default(_IfDefined('FlashSetting', _FlashSetting), 0),
-    '_Reserved5' / Default(_IfDefined('_Reserved5', Int8un), 0),
-    'WhiteBalance' / Default(_IfDefined('WhiteBalance', _WhiteBalance), 0),
-    'Resolution' / Default(_IfDefined('Resolution', _Resolution), 0),
-    'ImageQuality' / Default(_IfDefined('ImageQuality', _ImageQuality), 0),
-    '_Parity' / Default(Int8un, 0)
+    'DriveMode' / _IfDefined('DriveMode', _DriveMode),
+    'SpecialMode' / _IfDefined('SpecialMode', _SpecialMode),
+    'ExposureMode' / _IfDefined('ExposureMode', _ExposureMode),
+    'AEMeteringMode' / _IfDefined('AEMeteringMode', _AEMeteringMode),
+    '_Reserved0' / _IfDefined('_Reserved0', Int8un),
+    '_Reserved1' / _IfDefined('_Reserved1', Int8un),
+    '_Reserved2' / _IfDefined('_Reserved2', Int8un),
+    '_Reserved3' / _IfDefined('_Reserved3', Int8un),
+    'FlashType' / _IfDefined('FlashType', _FlashType),
+    '_Reserved4' / _IfDefined('_Reserved4', Int8un),
+    'FlashMode' / _IfDefined('FlashMode', _FlashMode),
+    'FlashSetting' / _IfDefined('FlashSetting', _FlashSetting),
+    '_Reserved5' / _IfDefined('_Reserved5', Int8un),
+    'WhiteBalance' / _IfDefined('WhiteBalance', _WhiteBalance),
+    'Resolution' / _IfDefined('Resolution', _Resolution),
+    'ImageQuality' / _IfDefined('ImageQuality', _ImageQuality),
+    '_Parity' / Int8un,
 )
 
 _CamDataGroup3FieldPresent = FlagsEnum(
@@ -164,25 +168,25 @@ _CamDataGroup3FieldPresent = FlagsEnum(
 )
 
 _CamDataGroup3 = Struct(
-    '_Header' / Default(Int8un, 0),  # arbitrary value for parity
+    '_Header' / Int8un,  # arbitrary value for parity
     'FieldPresent' / _CamDataGroup3FieldPresent,
-    '_Reserved0' / Default(_IfDefined('_Reserved0', Int8un), 0),
-    '_Reserved1' / Default(_IfDefined('_Reserved1', Int8un), 0),
-    '_Reserved2' / Default(_IfDefined('_Reserved2', Int8un), 0),
-    'ColorSpace' / Default(_IfDefined('ColorSpace', _ColorSpace), 0),
-    'ColorMode' / Default(_IfDefined('ColorMode', _ColorMode), 0),
-    'BatteryKind' / Default(_IfDefined('BatteryKind', _BatteryKind), 0),
-    'LensWideFocalLength' / Default(_IfDefined('LensWideFocalLength', _FixedPointValue(Int16ul, 4)), 0),
-    'LensTeleFocalLength' / Default(_IfDefined('LensTeleFocalLength', _FixedPointValue(Int16ul, 4)), 0),
-    'AFAuxLight' / Default(_IfDefined('AFAuxLight', _AFAuxLight), 0),
-    'AFBeep' / Default(_IfDefined('AFBeep', Int8un), 0),
-    '_Reserved3' / Default(_IfDefined('_Reserved3', Int8un), 0),
-    '_Reserved4' / Default(_IfDefined('_Reserved4', Int8un), 0),
-    '_Reserved5' / Default(_IfDefined('_Reserved5', Int8un), 0),
-    'TimerSound' / Default(_IfDefined('TimerSound', Int8un), 0),
-    '_Reserved6' / Default(_IfDefined('_Reserved6', Int8un), 0),
-    'DestToSave' / Default(_IfDefined('DestToSave', _DestToSave), 0),
-    '_Parity' / Default(Int8un, 0)
+    '_Reserved0' / _IfDefined('_Reserved0', Int8un),
+    '_Reserved1' / _IfDefined('_Reserved1', Int8un),
+    '_Reserved2' / _IfDefined('_Reserved2', Int8un),
+    'ColorSpace' / _IfDefined('ColorSpace', _ColorSpace),
+    'ColorMode' / _IfDefined('ColorMode', _ColorMode),
+    'BatteryKind' / _IfDefined('BatteryKind', _BatteryKind),
+    'LensWideFocalLength' / _IfDefined('LensWideFocalLength', _FixedPointValue(Int16ul, 4)),
+    'LensTeleFocalLength' / _IfDefined('LensTeleFocalLength', _FixedPointValue(Int16ul, 4)),
+    'AFAuxLight' / _IfDefined('AFAuxLight', _AFAuxLight),
+    'AFBeep' / _IfDefined('AFBeep', Int8un),
+    '_Reserved3' / _IfDefined('_Reserved3', Int8un),
+    '_Reserved4' / _IfDefined('_Reserved4', Int8un),
+    '_Reserved5' / _IfDefined('_Reserved5', Int8un),
+    'TimerSound' / _IfDefined('TimerSound', Int8un),
+    '_Reserved6' / _IfDefined('_Reserved6', Int8un),
+    'DestToSave' / _IfDefined('DestToSave', _DestToSave),
+    '_Parity' / Int8un
 )
 
 _CamCaptStatus = Struct(
@@ -196,10 +200,10 @@ _CamCaptStatus = Struct(
 )
 
 _SnapCommand = Struct(
-    '_Header' / Default(Int8un, 0),  # arbitrary value for parity
+    '_Header' / Int8un,  # arbitrary value for parity
     'CaptureMode' / _CaptureMode,
     'CaptureAmount' / Int8un,
-    '_Parity' / Default(Int8un, 0)
+    '_Parity' / Int8un,
 )
 
 _PictFileInfo2 = Struct(

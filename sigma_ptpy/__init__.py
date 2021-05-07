@@ -19,6 +19,6 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(level)
 
-__all__ = (
+__all__ = [
     'SigmaPTPy'
-)
+]

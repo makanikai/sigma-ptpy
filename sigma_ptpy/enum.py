@@ -3,6 +3,28 @@
 import enum
 
 
+class ProgramShift(enum.IntEnum):
+    """The dial operation amount in the camera side is not reflected."""
+    Null = 0  #: Uninitialized
+    Plus = 0x01  #: PShift Plus (L_click)
+    Minus = 0xff  #: PShift Minus (R_click)
+
+
+class ISOAuto(enum.IntEnum):
+    Manual = 0
+    Auto = 1
+
+
+class ABSetting(enum.IntEnum):
+    Null = 0x00,
+    AB3ZeroMinusPlus = 0x01  #: AB3: `0 → - → +`
+    AB3MinusZeroPlus = 0x02  #: AB3: `- → 0 → +`
+    AB3PlusZeroMinus = 0x03  #: AB3: `+ → 0 → -`
+    AB5ZeroMinusPlus = 0x04  #: AB5: `0 → - → +`
+    AB5MinusZeroPlus = 0x05  #: AB5: `- → 0 → +`
+    AB5PlusZeroMinus = 0x06  #: AB5: `+ → 0 → -`
+
+
 class DriveMode(enum.IntEnum):
     Null = 0  #: Uninitialized
     SingleCapture = 1  #: Single Capture
