@@ -96,7 +96,7 @@ class SigmaPTPy(SigmaPTP, USB):
         return self._parse_if_data(response, schema)
 
     def set_cam_data_group1(self, ShutterSpeed=None, Aperture=None, ProgramShift=None, ISOAuto=None, ISOSpeed=None,
-                            ExpCompensation=None, ABValue=None, ABSetting=None, CurrentLensFocalLength=None):
+                            ExpComp=None, ABValue=None, ABSetting=None):
         """This instruction changes DataGroup1 status information of the camera.
 
         Args:
@@ -105,26 +105,25 @@ class SigmaPTPy(SigmaPTP, USB):
             ProgramShift (sigma_ptpy.enum.ProgramShift): The dial operation amount in the camera side is not reflected.
             ISOAuto (sigma_ptpy.enum.ISOAuto): ISO auto
             ISOSpeed (int): ISO sensitivity (8-bit APEX step)
-            ExpCompensation (int): Exposure compensation (8-bit APEX step)
+            ExpComp (int): Exposure compensation (8-bit APEX step)
                 When the exposure mode is P, S, or A, the exposure compensation value is
                 output. If it is M, a difference from the correct exposure of AE is output.
                 If the exposure bracket is provided, the exposure compensation value is output,
                 including the exposure bracket compensation value. (cf. "ExpCompExcludeAB" in DataGroup1)
             ABValue (int): Auto bracket value (8-bit APEX step)
-            ABSetting (sigma_ptpy.enum.ABSetting): Auto bracket setting
-            CurrentLensFocalLength (float): Focal length in mm"""
+            ABSetting (sigma_ptpy.enum.ABSetting): Auto bracket setting"""
         data = Container(
-            _Header=0x03,
+            _Header=0x0,
             FieldPresent=Container(
                 ShutterSpeed=(ShutterSpeed is not None),
                 Aperture=(Aperture is not None),
                 ProgramShift=(ProgramShift is not None),
                 ISOAuto=(ISOAuto is not None),
                 ISOSpeed=(ISOSpeed is not None),
-                ExpCompensation=(ExpCompensation is not None),
+                ExpComp=(ExpComp is not None),
                 ABValue=(ABValue is not None),
                 ABSetting=(ABSetting is not None),
-                CurrentLensFocalLength=(CurrentLensFocalLength is not None),
+                CurrentLensFocalLength=False,
                 FrameBufferState=False, MediaFreeSpace=False, MediaStatus=False,
                 BatteryState=False, ABShotRemainNumber=False, ExpCompExcludeAB=False,
                 _Reserved0=False,
@@ -134,10 +133,10 @@ class SigmaPTPy(SigmaPTP, USB):
             ProgramShift=ProgramShift,
             ISOAuto=ISOAuto,
             ISOSpeed=ISOSpeed,
-            ExpCompensation=ExpCompensation,
+            ExpComp=ExpComp,
             ABValue=ABValue,
             ABSetting=ABSetting,
-            CurrentLensFocalLength=CurrentLensFocalLength,
+            CurrentLensFocalLength=None,
             FrameBufferState=None, MediaFreeSpace=None, MediaStatus=None,
             BatteryState=None, ABShotRemainNumber=None, ExpCompExcludeAB=None,
             _Reserved0=None,
@@ -161,7 +160,7 @@ class SigmaPTPy(SigmaPTP, USB):
             Resolution (sigma_ptpy.enum.Resolution): Resolition
             ImageQuality (sigma_ptpy.enum.ImageQuality): JPEG or DNG"""
         data = Container(
-            _Header=0x03,
+            _Header=0,
             FieldPresent=Container(
                 DriveMode=(DriveMode is not None),
                 SpecialMode=(SpecialMode is not None),
@@ -190,6 +189,7 @@ class SigmaPTPy(SigmaPTP, USB):
             FlashType=False,
             _Parity=0,
         )
+        print(data)
         return self.__set_cam_data_group('SigmaSetCamDataGroup2', _CamDataGroup2, data)
 
     def set_cam_data_group3(self, ColorSpace=None, ColorMode=None, AFAuxLight=None,
@@ -204,7 +204,7 @@ class SigmaPTPy(SigmaPTP, USB):
             TimerSound (int): Timer sound
             DestToSave (sigma_ptpy.enum.DestToSave): Destination to save pictures"""
         data = Container(
-            _Header=0x03,
+            _Header=0x0,
             FieldPresent=Container(
                 ColorSpace=(ColorSpace is not None),
                 ColorMode=(ColorMode is not None),
