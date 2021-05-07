@@ -4,18 +4,10 @@ sigma\_ptpy package
 Submodules
 ----------
 
-sigma\_ptpy.enum module
------------------------
+sigma\_ptpy.sigma\_ptpy module
+------------------------------
 
-.. automodule:: sigma_ptpy.enum
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-sigma\_ptpy.schema module
--------------------------
-
-.. automodule:: sigma_ptpy.schema
+.. automodule:: sigma_ptpy.sigma_ptpy
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,10 +20,26 @@ sigma\_ptpy.sigma\_ptp module
    :undoc-members:
    :show-inheritance:
 
-sigma\_ptpy.sigma\_ptpy module
+sigma\_ptpy.apex module
 ------------------------------
 
-.. automodule:: sigma_ptpy.sigma_ptpy
+.. automodule:: sigma_ptpy.apex
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+sigma\_ptpy.enum module
+-----------------------
+
+.. automodule:: sigma_ptpy.enum
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+sigma\_ptpy.schema module
+-------------------------
+
+.. automodule:: sigma_ptpy.schema
    :members:
    :undoc-members:
    :show-inheritance:
