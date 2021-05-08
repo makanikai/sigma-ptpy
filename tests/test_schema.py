@@ -2,10 +2,13 @@ import unittest
 from sigma_ptpy.enum import (
     DriveMode, SpecialMode, ExposureMode, AEMeteringMode, FlashMode, FlashSetting,
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
-    BatteryKind, AFAuxLight, CaptStatus, DestToSave
+    BatteryKind, AFAuxLight, CaptStatus, DestToSave,
+    DCCropMode, LVMagnifyRatio, HighISOExt, ContShootSpeed, HDR,
+    DNGQuality, LOCDistortion, LOCChromaticAbberation, LOCDiffraction,
+    LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab
 )
 from sigma_ptpy.schema import (
-    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3,
+    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3, _CamDataGroup4,
     _CamCaptStatus, _PictFileInfo2
 )
 
@@ -145,6 +148,37 @@ class Test_CamDataGroup3(unittest.TestCase):
         self.assertEqual(res.TimerSound, 0x05)
         self.assertEqual(res.FieldPresent.DestToSave, 1)
         self.assertEqual(res.DestToSave, DestToSave.InComputer)
+
+
+class Test_CamDataGroup4(unittest.TestCase):
+    def test_RecvData(self):
+        res = _CamDataGroup4.parse(b"\x11\xf0\x3f\x00\x03\x01\x03\xff\x0e\x00\x01\x01\x02\x01\xfe\x02\x02\x05\x60")
+
+        self.assertEqual(res.FieldPresent.DCCropMode, 1)
+        self.assertEqual(res.DCCropMode, DCCropMode.Auto)
+        self.assertEqual(res.FieldPresent.LVMagnifyRatio, 1)
+        self.assertEqual(res.LVMagnifyRatio, LVMagnifyRatio.x8)
+        self.assertEqual(res.FieldPresent.HighISOExt, 1)
+        self.assertEqual(res.HighISOExt, HighISOExt.Off)
+        self.assertEqual(res.FieldPresent.ContShootSpeed, 1)
+        self.assertEqual(res.ContShootSpeed, ContShootSpeed.Low)
+        self.assertEqual(res.FieldPresent.HDR, 1)
+        self.assertEqual(res.HDR, HDR.Off)
+        self.assertEqual(res.FieldPresent.DNGQuality, 1)
+        self.assertEqual(res.DNGQuality, DNGQuality.Q14bit)
+        self.assertEqual(res.FieldPresent.FillLight, 1)
+        self.assertEqual(res.FillLight, 0x00)
+        self.assertEqual(res.FieldPresent.LOC, 1)
+        self.assertEqual(res.LOCDistortion, LOCDistortion.Auto)
+        self.assertEqual(res.LOCChromaticAbberation, LOCChromaticAbberation.Auto)
+        self.assertEqual(res.LOCDiffraction, LOCDiffraction.Off)
+        self.assertEqual(res.LOCVignetting, LOCVignetting.Auto)
+        self.assertEqual(res.LOCColorShade, LOCColorShade.Off)
+        self.assertEqual(res.LOCColorShadeAcq, LOCColorShadeAcq.Off)
+        self.assertEqual(res.FieldPresent.EImageStab, 1)
+        self.assertEqual(res.EImageStab, EImageStab.Off)
+        self.assertEqual(res.FieldPresent.ShutterSound, 1)
+        self.assertEqual(res.ShutterSound, 5)
 
 
 class Test_CamCaptStatus(unittest.TestCase):

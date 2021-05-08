@@ -9,7 +9,10 @@ from .enum import (
     ProgramShift, ISOAuto, ABSetting, DriveMode, SpecialMode,
     ExposureMode, AEMeteringMode, FlashType, FlashMode, FlashSetting,
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
-    BatteryKind, AFAuxLight, CaptureMode, CaptStatus, DestToSave
+    BatteryKind, AFAuxLight, CaptureMode, CaptStatus, DestToSave,
+    DCCropMode, LVMagnifyRatio, HighISOExt, ContShootSpeed, HDR,
+    DNGQuality, LOCDistortion, LOCChromaticAbberation, LOCDiffraction,
+    LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab
 )
 
 
@@ -42,27 +45,6 @@ def _IfDefined(key, subcon):
     return If(lambda x: key in x.FieldPresent and x.FieldPresent[key], subcon)
 
 
-_ProgramShift = _Enum(Int8un, ProgramShift)
-_ISOAuto = _Enum(Int8un, ISOAuto)
-_ABSetting = _Enum(Int8un, ABSetting)
-_DriveMode = _Enum(Int8un, DriveMode)
-_SpecialMode = _Enum(Int8un, SpecialMode)
-_ExposureMode = _Enum(Int8un, ExposureMode)
-_AEMeteringMode = _Enum(Int8un, AEMeteringMode)
-_FlashType = _Enum(Int8un, FlashType)
-_FlashMode = _Enum(Int8un, FlashMode)
-_FlashSetting = _Enum(Int8un, FlashSetting)
-_WhiteBalance = _Enum(Int8un, WhiteBalance)
-_Resolution = _Enum(Int8un, Resolution)
-_ImageQuality = _Enum(Int8un, ImageQuality)
-_ColorSpace = _Enum(Int8un, ColorSpace)
-_ColorMode = _Enum(Int8un, ColorMode)
-_BatteryKind = _Enum(Int8un, BatteryKind)
-_AFAuxLight = _Enum(Int8un, AFAuxLight)
-_CaptureMode = _Enum(Int8un, CaptureMode)
-_CaptStatus = _Enum(Int16ul, CaptStatus)
-_DestToSave = _Enum(Int8un, DestToSave)
-
 _CamDataGroup1FieldPresent = FlagsEnum(
     Int16ub,
     ABSetting=0x8000,
@@ -88,12 +70,12 @@ _CamDataGroup1 = Struct(
     'FieldPresent' / _CamDataGroup1FieldPresent,
     'ShutterSpeed' / _IfDefined('ShutterSpeed', Int8un),
     'Aperture' / _IfDefined('Aperture', Int8un),
-    'ProgramShift' / _IfDefined('ProgramShift', _ProgramShift),
-    'ISOAuto' / _IfDefined('ISOAuto', _ISOAuto),
+    'ProgramShift' / _IfDefined('ProgramShift', _Enum(Int8un, ProgramShift)),
+    'ISOAuto' / _IfDefined('ISOAuto', _Enum(Int8un, ISOAuto)),
     'ISOSpeed' / _IfDefined('ISOSpeed', Int8un),
     'ExpComp' / _IfDefined('ExpComp', Int8un),
     'ABValue' / _IfDefined('ABValue', Int8un),
-    'ABSetting' / _IfDefined('ABSetting', _ABSetting),
+    'ABSetting' / _IfDefined('ABSetting', _Enum(Int8un, ABSetting)),
     'FrameBufferState' / _IfDefined('FrameBufferState', Int8un),
     'MediaFreeSpace' / _IfDefined('MediaFreeSpace', Int16ul),
     'MediaStatus' / _IfDefined('MediaStatus', Int8un),
@@ -128,22 +110,22 @@ _CamDataGroup2FieldPresent = FlagsEnum(
 _CamDataGroup2 = Struct(
     '_Header' / Int8un,  # arbitrary value for parity
     'FieldPresent' / _CamDataGroup2FieldPresent,
-    'DriveMode' / _IfDefined('DriveMode', _DriveMode),
-    'SpecialMode' / _IfDefined('SpecialMode', _SpecialMode),
-    'ExposureMode' / _IfDefined('ExposureMode', _ExposureMode),
-    'AEMeteringMode' / _IfDefined('AEMeteringMode', _AEMeteringMode),
+    'DriveMode' / _IfDefined('DriveMode', _Enum(Int8un, DriveMode)),
+    'SpecialMode' / _IfDefined('SpecialMode', _Enum(Int8un, SpecialMode)),
+    'ExposureMode' / _IfDefined('ExposureMode', _Enum(Int8un, ExposureMode)),
+    'AEMeteringMode' / _IfDefined('AEMeteringMode', _Enum(Int8un, AEMeteringMode)),
     '_Reserved0' / _IfDefined('_Reserved0', Int8un),
     '_Reserved1' / _IfDefined('_Reserved1', Int8un),
     '_Reserved2' / _IfDefined('_Reserved2', Int8un),
     '_Reserved3' / _IfDefined('_Reserved3', Int8un),
-    'FlashType' / _IfDefined('FlashType', _FlashType),
+    'FlashType' / _IfDefined('FlashType', _Enum(Int8un, FlashType)),
     '_Reserved4' / _IfDefined('_Reserved4', Int8un),
-    'FlashMode' / _IfDefined('FlashMode', _FlashMode),
-    'FlashSetting' / _IfDefined('FlashSetting', _FlashSetting),
+    'FlashMode' / _IfDefined('FlashMode', _Enum(Int8un, FlashMode)),
+    'FlashSetting' / _IfDefined('FlashSetting', _Enum(Int8un, FlashSetting)),
     '_Reserved5' / _IfDefined('_Reserved5', Int8un),
-    'WhiteBalance' / _IfDefined('WhiteBalance', _WhiteBalance),
-    'Resolution' / _IfDefined('Resolution', _Resolution),
-    'ImageQuality' / _IfDefined('ImageQuality', _ImageQuality),
+    'WhiteBalance' / _IfDefined('WhiteBalance', _Enum(Int8un, WhiteBalance)),
+    'Resolution' / _IfDefined('Resolution', _Enum(Int8un, Resolution)),
+    'ImageQuality' / _IfDefined('ImageQuality', _Enum(Int8un, ImageQuality)),
     '_Parity' / Int8un,
 )
 
@@ -173,19 +155,66 @@ _CamDataGroup3 = Struct(
     '_Reserved0' / _IfDefined('_Reserved0', Int8un),
     '_Reserved1' / _IfDefined('_Reserved1', Int8un),
     '_Reserved2' / _IfDefined('_Reserved2', Int8un),
-    'ColorSpace' / _IfDefined('ColorSpace', _ColorSpace),
-    'ColorMode' / _IfDefined('ColorMode', _ColorMode),
-    'BatteryKind' / _IfDefined('BatteryKind', _BatteryKind),
+    'ColorSpace' / _IfDefined('ColorSpace', _Enum(Int8un, ColorSpace)),
+    'ColorMode' / _IfDefined('ColorMode', _Enum(Int8un, ColorMode)),
+    'BatteryKind' / _IfDefined('BatteryKind', _Enum(Int8un, BatteryKind)),
     'LensWideFocalLength' / _IfDefined('LensWideFocalLength', _FixedPointValue(Int16ul, 4)),
     'LensTeleFocalLength' / _IfDefined('LensTeleFocalLength', _FixedPointValue(Int16ul, 4)),
-    'AFAuxLight' / _IfDefined('AFAuxLight', _AFAuxLight),
+    'AFAuxLight' / _IfDefined('AFAuxLight', _Enum(Int8un, AFAuxLight)),
     'AFBeep' / _IfDefined('AFBeep', Int8un),
     '_Reserved3' / _IfDefined('_Reserved3', Int8un),
     '_Reserved4' / _IfDefined('_Reserved4', Int8un),
     '_Reserved5' / _IfDefined('_Reserved5', Int8un),
     'TimerSound' / _IfDefined('TimerSound', Int8un),
     '_Reserved6' / _IfDefined('_Reserved6', Int8un),
-    'DestToSave' / _IfDefined('DestToSave', _DestToSave),
+    'DestToSave' / _IfDefined('DestToSave', _Enum(Int8un, DestToSave)),
+    '_Parity' / Int8un
+)
+
+_CamDataGroup4FieldPresent = FlagsEnum(
+    Int16ub,
+    ContShootSpeed=0x8000,
+    HighISOExt=0x4000,
+    LVMagnifyRatio=0x2000,
+    DCCropMode=0x1000,
+    _Reserved3=0x800,
+    _Reserved2=0x400,
+    _Reserved1=0x200,
+    _Reserved0=0x100,
+    _Reserved5=0x80,
+    _Reserved6=0x40,
+    ShutterSound=0x20,
+    EImageStab=0x10,
+    LOC=0x8,
+    FillLight=0x4,
+    DNGQuality=0x2,
+    HDR=0x1,
+)
+
+_CamDataGroup4 = Struct(
+    '_Header' / Int8un,  # arbitrary value for parity
+    'FieldPresent' / _CamDataGroup4FieldPresent,
+    '_Reserved0' / _IfDefined('_Reserved0', Int8un),
+    '_Reserved1' / _IfDefined('_Reserved1', Int8un),
+    '_Reserved2' / _IfDefined('_Reserved2', Int8un),
+    '_Reserved3' / _IfDefined('_Reserved3', Int8un),
+    'DCCropMode' / _IfDefined('DCCropMode', _Enum(Int8un, DCCropMode)),
+    'LVMagnifyRatio' / _IfDefined('LVMagnifyRatio', _Enum(Int8un, LVMagnifyRatio)),
+    'HighISOExt' / _IfDefined('HighISOExt', _Enum(Int8un, HighISOExt)),
+    'ContShootSpeed' / _IfDefined('ContShootSpeed', _Enum(Int8un, ContShootSpeed)),
+    'HDR' / _IfDefined('HDR', _Enum(Int8un, HDR)),
+    'DNGQuality' / _IfDefined('DNGQuality', _Enum(Int8un, DNGQuality)),
+    'FillLight' / _IfDefined('FillLight', Int8un),
+    'LOCDistortion' / _IfDefined('LOC', _Enum(Int8un, LOCDistortion)),
+    'LOCChromaticAbberation' / _IfDefined('LOC', _Enum(Int8un, LOCChromaticAbberation)),
+    'LOCDiffraction' / _IfDefined('LOC', _Enum(Int8un, LOCDiffraction)),
+    'LOCVignetting' / _IfDefined('LOC', _Enum(Int8un, LOCVignetting)),
+    'LOCColorShade' / _IfDefined('LOC', _Enum(Int8un, LOCColorShade)),
+    'LOCColorShadeAcq' / _IfDefined('LOC', _Enum(Int8un, LOCColorShadeAcq)),
+    'EImageStab' / _IfDefined('EImageStab', _Enum(Int8un, EImageStab)),
+    'ShutterSound' / _IfDefined('ShutterSound', Int8un),
+    '_Reserved4' / _IfDefined('_Reserved4', Int8un),
+    '_Reserved5' / _IfDefined('_Reserved5', Int8un),
     '_Parity' / Int8un
 )
 
@@ -194,14 +223,14 @@ _CamCaptStatus = Struct(
     'ImageId' / Int8un,
     'ImageDBHead' / Int8un,
     'ImageDBTail' / Int8un,
-    'CaptStatus' / _CaptStatus,
-    'DestToSave' / _DestToSave,
+    'CaptStatus' / _Enum(Int16ul, CaptStatus),
+    'DestToSave' / _Enum(Int8un, DestToSave),
     '_Parity' / Int8un
 )
 
 _SnapCommand = Struct(
     '_Header' / Int8un,  # arbitrary value for parity
-    'CaptureMode' / _CaptureMode,
+    'CaptureMode' / _Enum(Int8un, CaptureMode),
     'CaptureAmount' / Int8un,
     '_Parity' / Int8un,
 )

@@ -4,7 +4,7 @@ from ptpy import USB
 
 from .enum import CaptureMode
 from .schema import (
-    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3,
+    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3, _CamDataGroup4,
     _CamCaptStatus, _SnapCommand, _PictFileInfo2, _BigPartialPictFile
 )
 from .sigma_ptp import SigmaPTP
@@ -84,6 +84,13 @@ class SigmaPTPy(SigmaPTP, USB):
         Returns:
             construct.Container: CamDataGroup3 object."""
         return self.__get_cam_data_group('SigmaGetCamDataGroup3', _CamDataGroup3)
+
+    def get_cam_data_group4(self):
+        """This instruction acquires DataGroup4 status information from the camera.
+
+        Returns:
+            construct.Container: CamDataGroup4 object."""
+        return self.__get_cam_data_group('SigmaGetCamDataGroup4', _CamDataGroup4)
 
     def __get_cam_data_group(self, opcode, schema):
         ptp = Container(
@@ -228,6 +235,50 @@ class SigmaPTPy(SigmaPTP, USB):
             _Parity=0,
         )
         return self.__set_cam_data_group('SigmaSetCamDataGroup3', _CamDataGroup3, data)
+
+    def set_cam_data_group4(self, DCCropMode=None, LVMagnifyRatio=None, HighISOExt=None,
+                            ContShootSpeed=None, HDR=None, DNGQuality=None, FillLight=None,
+                            LOCDistortion=None, LOCChromaticAbberation=None, LOCDiffraction=None,
+                            LOCVignetting=None, LOCColorShade=None, LOCColorShadeAcq=None,
+                            EImageStab=None, ShutterSound=None):
+        LOC = (LOCDistortion is not None or LOCChromaticAbberation is not None or LOCDiffraction is not None or
+               LOCVignetting is not None or LOCColorShade is not None or LOCColorShadeAcq is not None)
+        data = Container(
+            _Header=0x0,
+            FieldPresent=Container(
+                DCCropMode=(DCCropMode is not None),
+                LVMagnifyRatio=(LVMagnifyRatio is not None),
+                HighISOExt=(HighISOExt is not None),
+                ContShootSpeed=(ContShootSpeed is not None),
+                HDR=(HDR is not None),
+                DNGQuality=(DNGQuality is not None),
+                FillLight=(FillLight is not None),
+                EImageStab=(EImageStab is not None),
+                ShutterSound=(ShutterSound is not None),
+                LOC=LOC,
+                _Reserved0=False, _Reserved1=False, _Reserved2=False,
+                _Reserved3=False, _Reserved4=False, _Reserved5=False,
+            ),
+            DCCropMode=DCCropMode,
+            LVMagnifyRatio=LVMagnifyRatio,
+            HighISOExt=HighISOExt,
+            ContShootSpeed=ContShootSpeed,
+            HDR=HDR,
+            DNGQuality=DNGQuality,
+            FillLight=FillLight,
+            EImageStab=EImageStab,
+            ShutterSound=ShutterSound,
+            LOCDistortion=(LOCDistortion or 0 if LOC else None),
+            LOCChromaticAbberation=(LOCChromaticAbberation or 0 if LOC else None),
+            LOCDiffraction=(LOCDiffraction or 0 if LOC else None),
+            LOCVignetting=(LOCVignetting or 0 if LOC else None),
+            LOCColorShade=(LOCColorShade or 0 if LOC else None),
+            LOCColorShadeAcq=(LOCColorShadeAcq or 0 if LOC else None),
+            _Reserved0=None, _Reserved1=None, _Reserved2=None,
+            _Reserved3=None, _Reserved4=None, _Reserved5=None,
+            _Parity=0,
+        )
+        return self.__set_cam_data_group('SigmaSetCamDataGroup4', _CamDataGroup4, data)
 
     def __set_cam_data_group(self, opcode, schema, data):
         payload = self._build_if_not_data(data, schema)

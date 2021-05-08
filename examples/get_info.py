@@ -87,3 +87,33 @@ with camera.session():
         print(f"  TimerSound = {str(d3.TimerSound)}")
     if d3.FieldPresent.DestToSave:
         print(f"  DestToSave = {str(d3.DestToSave)}")
+
+    print("CamDataGroup4:")
+    d4 = camera.get_cam_data_group4()
+
+    if d4.FieldPresent.DCCropMode:
+        print(f"  DCCropMode = {str(d4.DCCropMode)}")
+    if d4.FieldPresent.LVMagnifyRatio:
+        print(f"  LVMagnifyRatio = {str(d4.LVMagnifyRatio)}")
+    if d4.FieldPresent.HighISOExt:
+        print(f"  HighISOExt = {str(d4.HighISOExt)}")
+    if d4.FieldPresent.ContShootSpeed:
+        print(f"  ContShootSpeed = {str(d4.ContShootSpeed)}")
+    if d4.FieldPresent.HDR:
+        print(f"  HDR = {str(d4.HDR)}")
+    if d4.FieldPresent.DNGQuality:
+        print(f"  DNGQuality = {str(d4.DNGQuality)}")
+    if d4.FieldPresent.FillLight:
+        print(f"  FillLight = {str(d4.FillLight)}")
+    if d4.FieldPresent.EImageStab:
+        print(f"  EImageStab = {str(d4.EImageStab)}")
+    if d4.FieldPresent.ShutterSound:
+        print(f"  ShutterSound = {str(d4.ShutterSound)}")
+    if d4.FieldPresent.LOC:
+        print("  LensOpticsCompensation:")
+        print(f"    Distortion = {str(d4.LOCDistortion)}")
+        print(f"    Chromatic Abberation = {str(d4.LOCChromaticAbberation)}")
+        print(f"    Diffraction = {str(d4.LOCDiffraction)}")
+        print(f"    Vignetting = {str(d4.LOCVignetting)}")
+        print(f"    Color Shading = {str(d4.LOCColorShade)}")
+        print(f"    Color Shading Acquirement = {str(d4.LOCColorShadeAcq)}")

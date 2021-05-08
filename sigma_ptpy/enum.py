@@ -1,21 +1,21 @@
 """Enumerations for SIGMA"""
 
-import enum
+from enum import IntEnum
 
 
-class ProgramShift(enum.IntEnum):
+class ProgramShift(IntEnum):
     """The dial operation amount in the camera side is not reflected."""
     Null = 0  #: Uninitialized
     Plus = 0x01  #: PShift Plus (L_click)
     Minus = 0xff  #: PShift Minus (R_click)
 
 
-class ISOAuto(enum.IntEnum):
+class ISOAuto(IntEnum):
     Manual = 0
     Auto = 1
 
 
-class ABSetting(enum.IntEnum):
+class ABSetting(IntEnum):
     Null = 0x00,
     AB3ZeroMinusPlus = 0x01  #: AB3: `0 → - → +`
     AB3MinusZeroPlus = 0x02  #: AB3: `- → 0 → +`
@@ -25,7 +25,7 @@ class ABSetting(enum.IntEnum):
     AB5PlusZeroMinus = 0x06  #: AB5: `+ → 0 → -`
 
 
-class DriveMode(enum.IntEnum):
+class DriveMode(IntEnum):
     Null = 0  #: Uninitialized
     SingleCapture = 1  #: Single Capture
     ContinuousCapture = 2  #: Continuous Capture
@@ -34,12 +34,12 @@ class DriveMode(enum.IntEnum):
     IntervalTimer = 7  #: Interval Timer
 
 
-class SpecialMode(enum.IntEnum):
+class SpecialMode(IntEnum):
     Null = 0x00  #: Uninitialized / None
     LiveView = 0x02  #: Live View Mode (Displays the live view in the PC side.)
 
 
-class ExposureMode(enum.IntEnum):
+class ExposureMode(IntEnum):
     Null = 0  #: Uninitialized
     ProgramAuto = 1  #: P
     AperturePriority = 2  #: A
@@ -51,7 +51,7 @@ class ExposureMode(enum.IntEnum):
     Star = 0x80  #: I don't know what's this.
 
 
-class AEMeteringMode(enum.IntEnum):
+class AEMeteringMode(IntEnum):
     Null = 0  #: Uninitialized
     Evaluative = 1  #: Evaluative
     CenterWeightedAverage = 2  #: Center-weighted Average
@@ -59,13 +59,13 @@ class AEMeteringMode(enum.IntEnum):
     Spot = 4  #: Spot
 
 
-class FlashType(enum.Enum):
+class FlashType(IntEnum):
     Null = 0
     InternalPopupFlash = 1  #: Internal pop-up flash
     ExternalFlash = 2  #: External Flash (SIGMA products Flash)
 
 
-class FlashMode(enum.Enum):
+class FlashMode(IntEnum):
     Normal = 0  #: Uninitialized / Normal
     RedEyeReduction = 0x01
     FPEmission = 0x02
@@ -76,7 +76,7 @@ class FlashMode(enum.Enum):
     SlowSync = 0x40  #: Slow synchronization
 
 
-class FlashSetting(enum.Enum):
+class FlashSetting(IntEnum):
     Null = 0  #: Uninitialized
     TTLAuto = 0x1  #: TTL-Auto
     TTLManual = 0x2  #: TTL-Manual
@@ -84,7 +84,7 @@ class FlashSetting(enum.Enum):
     ExposureWarning = 0x81  #: Exposure warning (The strobe mark flashes.) * Read Only
 
 
-class WhiteBalance(enum.Enum):
+class WhiteBalance(IntEnum):
     Null = 0x0
     Auto = 0x1
     Sunlight = 0x2
@@ -103,14 +103,14 @@ class WhiteBalance(enum.Enum):
     LightSource = 0x0F  #: Auto (Light Source Priority)
 
 
-class Resolution(enum.Enum):
+class Resolution(IntEnum):
     Null = 0x0
     High = 0x1
     Medium = 0x2
     Low = 0x4
 
 
-class ImageQuality(enum.Enum):
+class ImageQuality(IntEnum):
     JPEGFine = 0x2
     JPEGNormal = 0x4
     JPEGBasic = 0x8
@@ -118,13 +118,13 @@ class ImageQuality(enum.Enum):
     DNGAndJPEG = 0x12
 
 
-class ColorSpace(enum.Enum):
+class ColorSpace(IntEnum):
     Null = 0x00
     sRGB = 0x01
     AdobeRGB = 0x02
 
 
-class ColorMode(enum.Enum):
+class ColorMode(IntEnum):
     Normal = 0x00
     Sepia = 0x01
     WhiteAndBlack = 0x02
@@ -140,19 +140,19 @@ class ColorMode(enum.Enum):
     FovClassicYellow = 0x0C
 
 
-class BatteryKind(enum.Enum):
+class BatteryKind(IntEnum):
     Null = 0x00
     BodyBattery = 0x01
     ACAdapter = 0x02
 
 
-class AFAuxLight(enum.Enum):
+class AFAuxLight(IntEnum):
     Null = 0x00
-    ON = 0x01
-    OFF = 0x02
+    On = 0x01
+    Off = 0x02
 
 
-class CaptureMode(enum.Enum):
+class CaptureMode(IntEnum):
     Null = 0x00
     GeneralCapt = 0x01
     NonAFCapt = 0x02
@@ -166,7 +166,7 @@ class CaptureMode(enum.Enum):
     StopRecMovie = 0x30  #: Stop Recording Movie
 
 
-class CaptStatus(enum.Enum):
+class CaptStatus(IntEnum):
     Cleared = 0x0000  #: Uninitialized / Cleared
     ShootInProgress = 0x0001  #: Shooting standby / In operation
     ShootSuccess = 0x0002  #: Shooting succeeded (Shooting sequence without image generation sequence)
@@ -185,8 +185,112 @@ class CaptStatus(enum.Enum):
     Failed = 0x6005  #: General failure (other than any of the above-mentioned failures.)
 
 
-class DestToSave(enum.IntEnum):
+class DestToSave(IntEnum):
     Null = 0x00  #: Uninitialized
     InCamera = 0x01  #: In-camera media
     InComputer = 0x02  #: Drive in PC side
     Both = 0x03  #: In-camera media + Drive in PC side
+
+
+class DCCropMode(IntEnum):
+    Auto = 0x00  #: Uninitialized / AUTO
+    Off = 0x01  #: OFF
+    On = 0x02  #: ON
+
+
+class LVMagnifyRatio(IntEnum):
+    Null = 0x00  #: Uninitialized
+    x1 = 0x01  #: x1.0
+    x4 = 0x02  #: x4.0
+    x8 = 0x03  #: x8.0
+
+
+class HighISOExt(IntEnum):
+    """High-sensitivity ISO extension"""
+    Auto = 0x00  #: Uninitialized
+    Off = 0x01  #: OFF
+    On = 0x02  #: ON
+
+
+class ContShootSpeed(IntEnum):
+    """Continuous shooting speed"""
+    Auto = 0x00  #: Uninitialized
+    High = 0x01  #: High speed
+    Medium = 0x02  #: Medium speed
+    Low = 0x03  #: Low speed
+
+
+class HDR(IntEnum):
+    Null = 0x00  #: Uninitialized
+    Off = 0xFF
+    Auto = 0xFE
+    EC1 = 0x01  #: Exposure compensation ±1.0
+    EC2 = 0x02  #: Exposure compensation ±3.0
+    EC3 = 0x03  #: Exposure compensation ±4.0
+
+
+class DNGQuality(IntEnum):
+    Q12bit = 12  #: 12 bit quality
+    Q14bit = 14  #: 14 bit quality
+
+
+class LOCDistortion(IntEnum):
+    """Lens Optics Compensation Distortion"""
+    Null = 0x00  #: Uninitialized
+    Auto = 0x01  #: AUTO
+    Off = 0x02  #: OFF
+
+
+class LOCChromaticAbberation(IntEnum):
+    """Lens Optics Compensation Chromatic Abberation"""
+    Null = 0x00  #: Uninitialized
+    Auto = 0x01  #: AUTO
+    Off = 0x02  #: OFF
+
+
+class LOCDiffraction(IntEnum):
+    """Lens Optics Compensation Diffraction"""
+    Null = 0x00  #: Uninitialized
+    On = 0x01  #: ON
+    Off = 0x02  #: OFF
+
+
+class LOCVignetting(IntEnum):
+    """Lens Optics Compensation Chromatic Abberation"""
+    Null = 0x00  #: Uninitialized
+    Auto = 0x01  #: AUTO
+    Off = 0x02  #: OFF
+
+
+class LOCColorShade(IntEnum):
+    """Lens Optics Compensation Color Shading"""
+    Null = 0x00  #: Uninitialized
+    Auto = 0xFF  #: AUTO
+    Off = 0xFE  #: OFF
+    No1 = 0x01
+    No2 = 0x02
+    No3 = 0x03
+    No4 = 0x04
+    No5 = 0x05
+    No6 = 0x06
+    No7 = 0x07
+    No8 = 0x08
+    No9 = 0x09
+    No10 = 0x0A
+
+
+class LOCColorShadeAcq(IntEnum):
+    """Lens Optics Compensation - Color Shading compensation value acquirement
+
+    Leave it ON from the time you entered the compensation value capture menu using the camera or
+    application operation until the time you exit the menu."""
+    Null = 0x00  #: Uninitialized
+    On = 0x01
+    Off = 0x02
+
+
+class EImageStab(IntEnum):
+    """Electronic Image Stabilization"""
+    Null = 0x00
+    On = 0x01
+    Off = 0x02
