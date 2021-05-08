@@ -1,4 +1,4 @@
-# sigma-ptpy [![Python package](https://github.com/akabe/sigma-ptpy/actions/workflows/python.yaml/badge.svg)](https://github.com/akabe/sigma-ptpy/actions/workflows/python.yaml)
+# sigma-ptpy [![Python package](https://github.com/akabe/sigma-ptpy/actions/workflows/test.yaml/badge.svg)](https://github.com/akabe/sigma-ptpy/actions/workflows/test.yaml)
 
 A third-party camera control library for the [SIGMA fp series](https://www.sigma-global.com/en/cameras/fp/).
 
