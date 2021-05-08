@@ -117,3 +117,20 @@ with camera.session():
         print(f"    Vignetting = {str(d4.LOCVignetting)}")
         print(f"    Color Shading = {str(d4.LOCColorShade)}")
         print(f"    Color Shading Acquirement = {str(d4.LOCColorShadeAcq)}")
+
+    print("CamDataGroup5:")
+    d5 = camera.get_cam_data_group5()
+
+    if d5.FieldPresent.IntervalTimer:
+        print(f"  IntervalTimerSecond = {str(d5.IntervalTimerSecond)}")
+        print(f"  IntervalTimerFrame = {str(d5.IntervalTimerFrame)}")
+        print(f"  IntervalTimerSecondRemain = {str(d5.IntervalTimerSecondRemain)}")
+        print(f"  IntervalTimerFrameRemain = {str(d5.IntervalTimerFrameRemain)}")
+    if d5.FieldPresent.ColorTemp:
+        print(f"  ColorTemp = {str(d5.ColorTemp)}")
+    if d5.FieldPresent.AspectRatio:
+        print(f"  AspectRatio = {str(d5.AspectRatio)}")
+    if d5.FieldPresent.ToneEffect:
+        print(f"  ToneEffect = {str(d5.ToneEffect)}")
+    if d5.FieldPresent.AFAuxLightEF:
+        print(f"  AFAuxLightEF = {str(d5.AFAuxLightEF)}")

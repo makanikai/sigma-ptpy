@@ -294,3 +294,27 @@ class EImageStab(IntEnum):
     Null = 0x00
     On = 0x01
     Off = 0x02
+
+
+class AspectRatio(IntEnum):
+    Null = 0x00  #: Uninitialized
+    W21H9 = 0x01  #: 21:9
+    W16H9 = 0x02  #: 16:9
+    W3H2 = 0x03  #: 3:2
+    W4H3 = 0x04  #: 4:3
+    W7H6 = 0x05  #: 7:6
+    W1H1 = 0x06  #: 1:1
+    WSQRT2H1 = 0x07  #: sqrt(2):1
+
+
+class ToneEffect(IntEnum):
+    """Tone setting value in Monochrome mode"""
+    Null = 0x00  #: Uninitialized
+    BAndW = 0x01  #: B&W
+
+
+class AFAuxLightEF(IntEnum):
+    """Auxiliary light activation setting for external flash"""
+    Null = 0x00  #: Uninitialized
+    On = 0x01
+    Off = 0x02

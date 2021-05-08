@@ -5,10 +5,11 @@ from sigma_ptpy.enum import (
     BatteryKind, AFAuxLight, CaptStatus, DestToSave,
     DCCropMode, LVMagnifyRatio, HighISOExt, ContShootSpeed, HDR,
     DNGQuality, LOCDistortion, LOCChromaticAbberation, LOCDiffraction,
-    LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab
+    LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab,
+    ToneEffect, AspectRatio
 )
 from sigma_ptpy.schema import (
-    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3, _CamDataGroup4,
+    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3, _CamDataGroup4, _CamDataGroup5,
     _CamCaptStatus, _PictFileInfo2
 )
 
@@ -141,7 +142,7 @@ class Test_CamDataGroup3(unittest.TestCase):
         self.assertEqual(res.FieldPresent.LensTeleFocalLength, 1)
         self.assertEqual(res.LensTeleFocalLength, 0x0000)
         self.assertEqual(res.FieldPresent.AFAuxLight, 1)
-        self.assertEqual(res.AFAuxLight, AFAuxLight.OFF)
+        self.assertEqual(res.AFAuxLight, AFAuxLight.Off)
         self.assertEqual(res.FieldPresent.AFBeep, 1)
         self.assertEqual(res.AFBeep, 0x05)
         self.assertEqual(res.FieldPresent.TimerSound, 1)
@@ -179,6 +180,24 @@ class Test_CamDataGroup4(unittest.TestCase):
         self.assertEqual(res.EImageStab, EImageStab.Off)
         self.assertEqual(res.FieldPresent.ShutterSound, 1)
         self.assertEqual(res.ShutterSound, 5)
+
+
+class Test_CamDataGroup5(unittest.TestCase):
+    def test_RecvData(self):
+        res = _CamDataGroup5.parse(b"\x0c\x2b\x00\x0a\x00\x01\x00\x00\x01\x58\x1b\x03\x01\xba")
+
+        self.assertEqual(res.FieldPresent.IntervalTimer, 1)
+        self.assertEqual(res.IntervalTimerSecond, 10)
+        self.assertEqual(res.IntervalTimerFrame, 1)
+        self.assertEqual(res.IntervalTimerSecondRemain, 0)
+        self.assertEqual(res.IntervalTimerFrameRemain, 1)
+        self.assertEqual(res.FieldPresent.ColorTemp, 1)
+        self.assertEqual(res.ColorTemp, 7000)
+        self.assertEqual(res.FieldPresent.AspectRatio, 1)
+        self.assertEqual(res.AspectRatio, AspectRatio.W3H2)
+        self.assertEqual(res.FieldPresent.ToneEffect, 1)
+        self.assertEqual(res.ToneEffect, ToneEffect.BAndW)
+        self.assertEqual(res.FieldPresent.AFAuxLightEF, 0)
 
 
 class Test_CamCaptStatus(unittest.TestCase):

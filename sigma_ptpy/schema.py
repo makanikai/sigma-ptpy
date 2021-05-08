@@ -12,7 +12,8 @@ from .enum import (
     BatteryKind, AFAuxLight, CaptureMode, CaptStatus, DestToSave,
     DCCropMode, LVMagnifyRatio, HighISOExt, ContShootSpeed, HDR,
     DNGQuality, LOCDistortion, LOCChromaticAbberation, LOCDiffraction,
-    LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab
+    LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab,
+    AspectRatio, ToneEffect, AFAuxLightEF
 )
 
 
@@ -215,6 +216,51 @@ _CamDataGroup4 = Struct(
     'ShutterSound' / _IfDefined('ShutterSound', Int8un),
     '_Reserved4' / _IfDefined('_Reserved4', Int8un),
     '_Reserved5' / _IfDefined('_Reserved5', Int8un),
+    '_Parity' / Int8un
+)
+
+_CamDataGroup5FieldPresent = FlagsEnum(
+    Int16ub,
+    _Reserved3=0x8000,
+    _Reserved2=0x4000,
+    ToneEffect=0x2000,
+    _Reservec1=0x1000,
+    AspectRatio=0x800,
+    _Reserved0=0x400,
+    ColorTemp=0x200,
+    IntervalTimer=0x100,
+    AFAuxLightEF=0x80,
+    _Reserved10=0x40,
+    _Reserved9=0x20,
+    _Reserved8=0x10,
+    _Reserved7=0x8,
+    _Reserved6=0x4,
+    _Reserved5=0x2,
+    _Reserved4=0x1,
+)
+
+_CamDataGroup5 = Struct(
+    '_Header' / Int8un,  # arbitrary value for parity
+    'FieldPresent' / _CamDataGroup5FieldPresent,
+    'IntervalTimerSecond' / _IfDefined('IntervalTimer', Int16ul),
+    'IntervalTimerFrame' / _IfDefined('IntervalTimer', Int8un),
+    'IntervalTimerSecondRemain' / _IfDefined('IntervalTimer', Int16ul),
+    'IntervalTimerFrameRemain' / _IfDefined('IntervalTimer', Int8un),
+    'ColorTemp' / _IfDefined('ColorTemp', Int16ul),
+    '_Reserved0' / _IfDefined('_Reserved0', Int8un),
+    '_Reserved1' / _IfDefined('_Reserved1', Int8un),
+    'AspectRatio' / _IfDefined('AspectRatio', _Enum(Int8un, AspectRatio)),
+    '_Reserved2' / _IfDefined('_Reserved2', Int8un),
+    'ToneEffect' / _IfDefined('ToneEffect', _Enum(Int8un, ToneEffect)),
+    '_Reserved3' / _IfDefined('_Reserved3', Int8un),
+    '_Reserved4' / _IfDefined('_Reserved4', Int8un),
+    '_Reserved5' / _IfDefined('_Reserved5', Int8un),
+    '_Reserved6' / _IfDefined('_Reserved6', Int8un),
+    '_Reserved7' / _IfDefined('_Reserved7', Int8un),
+    '_Reserved8' / _IfDefined('_Reserved8', Int8un),
+    '_Reserved9' / _IfDefined('_Reserved9', Int8un),
+    '_Reserved10' / _IfDefined('_Reserved10', Int8un),
+    'AFAuxLightEF' / _IfDefined('AFAuxLightEF', _Enum(Int8un, AFAuxLightEF)),
     '_Parity' / Int8un
 )
 
