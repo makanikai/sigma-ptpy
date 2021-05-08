@@ -43,7 +43,7 @@ class SigmaPTPy(SigmaPTP, USB):
                  # Do something."""
 
     def __init__(self, *args, **kwargs):
-        logger.info("Init SigmaPTPy")
+        logger.debug("Init SigmaPTPy")
         super(SigmaPTPy, self).__init__(*args, **kwargs)
 
     def config_api(self):
