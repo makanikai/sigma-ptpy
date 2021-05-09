@@ -2,10 +2,11 @@ import logging
 from construct import Container
 from ptpy import USB
 
-from .enum import CaptureMode
+from .enum import ApiConfigTag, CaptureMode
 from .schema import (
-    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3,
-    _CamCaptStatus, _SnapCommand, _PictFileInfo2, _BigPartialPictFile
+    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3, _CamDataGroup4, _CamDataGroup5,
+    _DirectoryEntryArray, _CamCaptStatus, _SnapCommand, _PictFileInfo2, _BigPartialPictFile,
+    _decode_directory_entry
 )
 from .sigma_ptp import SigmaPTP
 
@@ -57,15 +58,65 @@ class SigmaPTPy(SigmaPTP, USB):
         is synchronized with the switch status.) Furthermore, API does not accept any
         operation other than the power-off operation.
         The data to be handled is based on the IFD structure."""
-        data = Container(
-            OperationCode='SigmaConfigApi',
+        return self.__get_directory_entry_array('SigmaConfigApi', ApiConfigTag)
+
+    def __get_directory_entry_array(self, opcode, TagEnum):
+        ptp = Container(
+            OperationCode=opcode,
             SessionID=self._session,
             TransactionID=self._transaction,
             Parameter=[0])
-        return self.recv(data)
+        response = self.recv(ptp)
+        logger.debug("RECV {} {}".format(opcode, _bytes_to_hex(response.Data)))
+        dirarray = self._parse_if_data(response, _DirectoryEntryArray)
+        entries = dirarray.Entries[0:min(len(dirarray.Entries), dirarray.DirectoryCount)]
+        tags = set(e.value for e in TagEnum)
+        parsed = [(
+            TagEnum(entry.Tag) if entry.Tag in tags else entry.Tag,
+            _decode_directory_entry(entry, response.Data)
+        ) for entry in entries]
+        return parsed
 
     def get_cam_data_group1(self):
         """This instruction acquires DataGroup1 status information from the camera.
+
+        The returned container has the following fields:
+
+        - ``ShutterSpeed`` (:obj:`int`): Shutter speed (8-bit APEX step)
+        - ``Aperture`` (:obj:`int`): Aperture (8-bit APEX step)
+        - ``ProgramShift`` (:obj:`sigma_ptpy.enum.ProgramShift`): The dial operation amount in the camera side
+          is not reflected.
+        - ``ISOAuto`` (:obj:`sigma_ptpy.enum.ISOAuto`): ISO auto
+        - ``ISOSpeed`` (:obj:`int`): ISO sensitivity (8-bit APEX step)
+        - ``ExpComp`` (:obj:`int`): Exposure compensation (8-bit APEX step). When the exposure mode is P, S,
+          or A, the exposure compensation value is output. If it is M, a difference from the correct exposure
+          of AE is output. If the exposure bracket is provided, the exposure compensation value is output,
+          including the exposure bracket compensation value. (cf. "ExpCompExcludeAB" in DataGroup1)
+        - ``ABValue`` (:obj:`int`): Auto bracket value (8-bit APEX step)
+        - ``ABSetting`` (:obj:`sigma_ptpy.enum.ABSetting`): Auto bracket setting
+        - ``FrameBufferState`` (:obj:`int`): Free space of FrameBuffer (in camera) (Maximum number of shots)
+        - ``MediaFreeSpace`` (:obj:`int`): Free space of recording media (Maximum number of shots) (16bit)
+        - ``MediaStatus`` (:obj:`int`)
+        - ``CurrentLensFocalLength`` (:obj:`float`)
+        - ``BatteryState`` (:obj:`int`)
+        - ``ABShotRemainNumber`` (:obj:`int`)
+        - ``ExpCompExcludeAB`` (:obj:`int`)
+        - ``FieldPresent``: Field existence
+            - ``ShutterSpeed`` (:obj:`bool`): "ShutterSpeed" field exists, or not.
+            - ``Aperture`` (:obj:`bool`): "Aperture" field exists, or not.
+            - ``ProgramShift`` (:obj:`bool`): "ProgramShift" field exists, or not.
+            - ``ISOAuto`` (:obj:`bool`): "ISOAuto" field exists, or not.
+            - ``ISOSpeed`` (:obj:`bool`): "ISOSpeed" field exists, or not.
+            - ``ExpComp`` (:obj:`bool`): "ExpComp" field exists, or not.
+            - ``ABValue`` (:obj:`bool`): "ABValue" field exists, or not.
+            - ``ABSetting`` (:obj:`bool`): "ABSetting" field exists, or not.
+            - ``FrameBufferState`` (:obj:`bool`): "FrameBufferState" field exists, or not.
+            - ``MediaFreeSpace`` (:obj:`bool`): "MediaFreeSpace" field exists, or not.
+            - ``MediaStatus`` (:obj:`bool`): "MediaStatus" field exists, or not.
+            - ``CurrentLensFocalLength`` (:obj:`bool`): "CurrentLensFocalLength" field exists, or not.
+            - ``BatteryState`` (:obj:`bool`): "BatteryState" field exists, or not.
+            - ``ABShotRemainNumber`` (:obj:`bool`): "ABShotRemainNumber" field exists, or not.
+            - ``ExpCompExcludeAB`` (:obj:`bool`): "ExpCompExcludeAB" field exists, or not.
 
         Returns:
             construct.Container: CamDataGroup1 object."""
@@ -74,6 +125,30 @@ class SigmaPTPy(SigmaPTP, USB):
     def get_cam_data_group2(self):
         """This instruction acquires DataGroup2 status information from the camera.
 
+        The returned container has the following fields:
+
+        - ``DriveMode`` (:obj:`sigma_ptpy.enum.DriveMode`): Drive mode
+        - ``SpecialMode`` (:obj:`sigma_ptpy.enum.SpecialMode`): Using LiveView or not
+        - ``ExposureMode`` (:obj:`sigma_ptpy.enum.ExposureMode`): P, A, S, or M
+        - ``AEMeteringMode`` (:obj:`sigma_ptpy.enum.AEMeteringMode`): Auto exposure setting
+        - ``FlashType`` (:obj:`sigma_ptpy.enum.FlashType`): Flash type
+        - ``FlashMode`` (:obj:`sigma_ptpy.enum.FlashMode`): Flash mode
+        - ``FlashSeting`` (:obj:`sigma_ptpy.enum.FlashSetting`): Flash setting
+        - ``WhiteBalance`` (:obj:`sigma_ptpy.enum.WhiteBalance`): White balance
+        - ``Resolution`` (:obj:`sigma_ptpy.enum.Resolution`): Resolition
+        - ``ImageQuality`` (:obj:`sigma_ptpy.enum.ImageQuality`): JPEG or DNG
+        - ``FieldPresent``: Field existence
+            - ``DriveMode`` (:obj:`bool`): "DriveMode" field exists, or not.
+            - ``SpecialMode`` (:obj:`bool`): "SpecialMode" field exists, or not.
+            - ``ExposureMode`` (:obj:`bool`): "ExposureMode" field exists, or not.
+            - ``AEMeteringMode`` (:obj:`bool`): "AEMeteringMode" field exists, or not.
+            - ``FlashType`` (:obj:`bool`): "FlashType" field exists, or not.
+            - ``FlashMode`` (:obj:`bool`): "FlashMode" field exists, or not.
+            - ``FlashSeting`` (:obj:`bool`): "FlashSeting" field exists, or not.
+            - ``WhiteBalance`` (:obj:`bool`): "WhiteBalance" field exists, or not.
+            - ``Resolution`` (:obj:`bool`): "Resolution" field exists, or not.
+            - ``ImageQuality`` (:obj:`bool`): "ImageQuality" field exists, or not.
+
         Returns:
             construct.Container: CamDataGroup2 object."""
         return self.__get_cam_data_group('SigmaGetCamDataGroup2', _CamDataGroup2)
@@ -81,9 +156,103 @@ class SigmaPTPy(SigmaPTP, USB):
     def get_cam_data_group3(self):
         """This instruction acquires DataGroup3 status information from the camera.
 
+        The returned container has the following fields:
+
+        - ``ColorSpace`` (:obj:`sigma_ptpy.enum.ColorSpace`): sRGB or AdobeRGB
+        - ``ColorMode`` (:obj:`sigma_ptpy.enum.ColorMode`): Color mode
+        - ``BatteryKind`` (:obj:`sigma_ptpy.enum.BatteryKind`):
+        - ``LensWideFocalLength`` (:obj:`float`): focal length in mm (Wide end)
+        - ``LensTeleFocalLength`` (:obj:`float`): focal length in mm (Tele end)
+        - ``AFAuxLight`` (:obj:`sigma_ptpy.enum.AFAuxLight`): AF auxiliary light ON or OFF
+        - ``AFBeep`` (:obj:`int`): AF beep sound
+        - ``TimerSound`` (:obj:`int`): Timer sound
+        - ``DestToSave`` (:obj:`sigma_ptpy.enum.DestToSave`): Destination to save pictures
+        - ``FieldPresent``: Field existence
+            - ``ColorSpace`` (:obj:`bool`): "ColorSpace" field exists, or not.
+            - ``ColorMode`` (:obj:`bool`): "ColorMode" field exists, or not.
+            - ``BatteryKind`` (:obj:`bool`): "BatteryKind" field exists, or not.
+            - ``LensWideFocalLength`` (:obj:`bool`): "LensWideFocalLength" field exists, or not.
+            - ``LensTeleFocalLength`` (:obj:`bool`): "LensTeleFocalLength" field exists, or not.
+            - ``AFAuxLight`` (:obj:`bool`): "AFAuxLight" field exists, or not.
+            - ``AFBeep`` (:obj:`bool`): "AFBeep" field exists, or not.
+            - ``TimerSound`` (:obj:`bool`): "TimerSound" field exists, or not.
+            - ``DestToSave`` (:obj:`bool`): "DestToSave" field exists, or not.
+
         Returns:
             construct.Container: CamDataGroup3 object."""
         return self.__get_cam_data_group('SigmaGetCamDataGroup3', _CamDataGroup3)
+
+    def get_cam_data_group4(self):
+        """This instruction acquires DataGroup4 status information from the camera.
+
+        The returned container has the following fields:
+
+        - ``DCCropMode`` (:obj:`sigma_ptpy.enum.DCCropMode`): The DC Crop setting value and AUTO are judged
+          depending on the attached lens.
+        - ``LVMagnifyRatio`` (:obj:`sigma_ptpy.enum.LVMagnifyRatio``)
+        - ``HighISOExt`` (:obj:`sigma_ptpy.enum.HighISOExt``): Setting value of high-sensitivity ISO extension
+        - ``ContShootSpeed`` (:obj:`sigma_ptpy.enum.ContShootSpeed`): Setting value of continuous shooting speed
+        - ``HDR`` (:obj:`sigma_ptpy.enum.HDR`):
+        - ``DNGQuality`` (:obj:`sigma_ptpy.enum.DNGQuality`): DNG image quality
+        - ``FillLight`` (:obj:`sigma_ptpy.enum.FillLight`): Setting value of Fill Light. Set the ±5.0 range
+          in 0.1 increments, and enter 10 times the UI display value.
+        - ``LOCDistortion`` (:obj:`sigma_ptpy.enum.LOCDistortion`):
+          Lens Optics Compensation - Distortion setting value
+        - ``LOCChromaticAberration`` (:obj:`sigma_ptpy.enum.LOCChromaticAberration`):
+          Lens Optics Compensation - Chromatic Aberration setting value
+        - ``LOCDiffraction`` (:obj:`sigma_ptpy.enum.LOCDiffraction`):
+          Lens Optics Compensation - Diffraction setting value
+        - ``LOCVignetting`` (:obj:`sigma_ptpy.enum.LOCVignetting`):
+          Lens Optics Compensation - Vignetting setting value
+        - ``LOCColorShade`` (:obj:`sigma_ptpy.enum.LOCColorShade`):
+          Lens Optics Compensation - Color Shading setting value
+        - ``LOCColorShadeAcq`` (:obj:`sigma_ptpy.enum.LOCColorShadeAcq`):
+          Lens Optics Compensation - Color Shading compensation value acquirement.
+          Leave it ON from the time you entered the compensation value capture menu using
+          camera or application operation until the time you exit the menu.
+        - ``EImageStab`` (:obj:`sigma_ptpy.enum.EImageStab`): Setting value of Electronic Image Stabilization
+        - ``ShutterSound`` (:obj:`sigma_ptpy.enum.ShutterSound`): Shutter sound / Recording start/stop sound
+        - ``FieldPresent``: Field existence
+            - ``DCCropMode`` (:obj:`bool`): "DCCropMode" field exists, or not.
+            - ``LVMagnifyRatio`` (:obj:`bool`): "LVMagnifyRatio" field exists, or not.
+            - ``HighISOExt`` (:obj:`bool`): "HighISOExt" field exists, or not.
+            - ``ContShootSpeed`` (:obj:`bool`): "ContShootSpeed" field exists, or not.
+            - ``HDR`` (:obj:`bool`): "HDR" field exists, or not.
+            - ``DNGQuality`` (:obj:`bool`): "DNGQuality" field exists, or not.
+            - ``FillLight`` (:obj:`bool`): "FillLight" field exists, or not.
+            - ``LOC`` (:obj:`bool`): "LOC*" fields exist, or not.
+            - ``EImageStab`` (:obj:`bool`): "EImageStab" field exists, or not.
+            - ``ShutterSound`` (:obj:`bool`): "ShutterSound" field exists, or not.
+
+        Returns:
+            construct.Container: CamDataGroup4 object."""
+        return self.__get_cam_data_group('SigmaGetCamDataGroup4', _CamDataGroup4)
+
+    def get_cam_data_group5(self):
+        """This instruction acquires DataGroup5 status information from the camera.
+
+        The returned container has the following fields:
+
+        - ``IntervalTimerSecond`` (:obj:`int`): Shooting interval in Interval Timer mode (Unit in seconds)
+        - ``IntervalTimerFrame`` (:obj:`int`): The number of shots in Interval Timer mode.
+          0 indicates the infinite, and other numeric values indicate the specified number of shots.
+        - ``IntervalTimerSecondRemain`` (:obj:`int`): Remaining time required to start the next
+          shooting in Interval Timer mode (Unit in seconds)
+        - ``IntervalTimerFrameRemain`` (:obj:`int`): Remaining time required to end shooting in Interval Timer mode
+        - ``ColorTemp`` (:obj:`int`): User setting value of color temperature white balance (Unit in kelvin)
+        - ``AspectRatio`` (:obj:`sigma_ptpy.enum.AspectRatio`): Aspect Ratio setting value
+        - ``ToneEffect`` (:obj:`sigma_ptpy.enum.ToneEffect`): Tone setting value in Monochrome mode
+        - ``AFAuxLightEF`` (:obj:`sigma_ptpy.enum.AFAuxLightEF`): Auxiliary light activation setting for external flash.
+        - ``FieldPresent``: Field existence
+            - ``IntervalTimer`` (:obj:`bool`): "IntervalTimer*" fields exist, or not.
+            - ``ColorTemp`` (:obj:`bool`): "ColorTemp" field exists, or not.
+            - ``AspectRatio`` (:obj:`bool`): "AspectRatio" field exists, or not.
+            - ``ToneEffect`` (:obj:`bool`): "ToneEffect" field exists, or not.
+            - ``AFAuxLightEF`` (:obj:`bool`): "AFAuxLightEF" field exists, or not.
+
+        Returns:
+            construct.Container: CamDataGroup5 object."""
+        return self.__get_cam_data_group('SigmaGetCamDataGroup5', _CamDataGroup5)
 
     def __get_cam_data_group(self, opcode, schema):
         ptp = Container(
@@ -228,6 +397,118 @@ class SigmaPTPy(SigmaPTP, USB):
             _Parity=0,
         )
         return self.__set_cam_data_group('SigmaSetCamDataGroup3', _CamDataGroup3, data)
+
+    def set_cam_data_group4(self, DCCropMode=None, LVMagnifyRatio=None, HighISOExt=None,
+                            ContShootSpeed=None, HDR=None, DNGQuality=None, FillLight=None,
+                            LOCDistortion=None, LOCChromaticAbberation=None, LOCDiffraction=None,
+                            LOCVignetting=None, LOCColorShade=None, LOCColorShadeAcq=None,
+                            EImageStab=None, ShutterSound=None):
+        """This instruction changes DataGroup4 status information of the camera.
+
+        Args:
+            DCCropMode (sigma_ptpy.enum.DCCropMode): The DC Crop setting value and AUTO are judged
+                depending on the attached lens.
+            LVMagnifyRatio (sigma_ptpy.enum.LVMagnifyRatio):
+            HighISOExt (sigma_ptpy.enum.HighISOExt): Setting value of high-sensitivity ISO extension
+            ContShootSpeed (sigma_ptpy.enum.ContShootSpeed): Setting value of continuous shooting speed
+            HDR (sigma_ptpy.enum.HDR):
+            DNGQuality (sigma_ptpy.enum.DNGQuality): DNG image quality
+            FillLight (sigma_ptpy.enum.FillLight): Setting value of Fill Light
+                Set the ±5.0 range in 0.1 increments, and enter 10 times the UI display value.
+            LOCDistortion (sigma_ptpy.enum.LOCDistortion): Lens Optics Compensation - Distortion setting value
+            LOCChromaticAberration (sigma_ptpy.enum.LOCChromaticAberration): Lens Optics Compensation -
+                Chromatic Aberration setting value
+            LOCDiffraction (sigma_ptpy.enum.LOCDiffraction): Lens Optics Compensation - Diffraction setting value
+            LOCVignetting (sigma_ptpy.enum.LOCVignetting): Lens Optics Compensation - Vignetting setting value
+            LOCColorShade (sigma_ptpy.enum.LOCColorShade): Lens Optics Compensation - Color Shading setting value
+            LOCColorShadeAcq (sigma_ptpy.enum.LOCColorShadeAcq): Lens Optics Compensation -
+                Color Shading compensation value acquirement.
+                Leave it ON from the time you entered the compensation value capture menu using
+                camera or application operation until the time you exit the menu.
+            EImageStab (sigma_ptpy.enum.EImageStab): Setting value of Electronic Image Stabilization
+            ShutterSound (sigma_ptpy.enum.ShutterSound): Shutter sound / Recording start/stop sound"""
+        LOC = (LOCDistortion is not None or LOCChromaticAbberation is not None or LOCDiffraction is not None or
+               LOCVignetting is not None or LOCColorShade is not None or LOCColorShadeAcq is not None)
+        data = Container(
+            _Header=0x0,
+            FieldPresent=Container(
+                DCCropMode=(DCCropMode is not None),
+                LVMagnifyRatio=(LVMagnifyRatio is not None),
+                HighISOExt=(HighISOExt is not None),
+                ContShootSpeed=(ContShootSpeed is not None),
+                HDR=(HDR is not None),
+                DNGQuality=(DNGQuality is not None),
+                FillLight=(FillLight is not None),
+                EImageStab=(EImageStab is not None),
+                ShutterSound=(ShutterSound is not None),
+                LOC=LOC,
+                _Reserved0=False, _Reserved1=False, _Reserved2=False,
+                _Reserved3=False, _Reserved4=False, _Reserved5=False,
+            ),
+            DCCropMode=DCCropMode,
+            LVMagnifyRatio=LVMagnifyRatio,
+            HighISOExt=HighISOExt,
+            ContShootSpeed=ContShootSpeed,
+            HDR=HDR,
+            DNGQuality=DNGQuality,
+            FillLight=FillLight,
+            EImageStab=EImageStab,
+            ShutterSound=ShutterSound,
+            LOCDistortion=(LOCDistortion or 0 if LOC else None),
+            LOCChromaticAbberation=(LOCChromaticAbberation or 0 if LOC else None),
+            LOCDiffraction=(LOCDiffraction or 0 if LOC else None),
+            LOCVignetting=(LOCVignetting or 0 if LOC else None),
+            LOCColorShade=(LOCColorShade or 0 if LOC else None),
+            LOCColorShadeAcq=(LOCColorShadeAcq or 0 if LOC else None),
+            _Reserved0=None, _Reserved1=None, _Reserved2=None,
+            _Reserved3=None, _Reserved4=None, _Reserved5=None,
+            _Parity=0,
+        )
+        return self.__set_cam_data_group('SigmaSetCamDataGroup4', _CamDataGroup4, data)
+
+    def set_cam_data_group5(self, IntervalTimerSecond=None, IntervalTimerFrame=None,
+                            ColorTemp=None, AspectRatio=None, ToneEffect=None, AFAuxLightEF=None):
+        """This instruction changes DataGroup5 status information of the camera.
+
+        When you set Interval Timer mode, both of IntervalTimerSecond and IntervalTimerFrame must
+        be given at the same time.
+
+        Args:
+            IntervalTimerSecond (int): Shooting interval in Interval Timer mode (Unit in seconds)
+            IntervalTimerFrame (int): The number of shots in Interval Timer mode.
+                0 indicates the infinite, and other numeric values indicate the specified number of shots.
+            ColorTemp (int): User setting value of color temperature white balance (Unit in kelvin)
+            AspectRatio (sigma_ptpy.enum.AspectRatio): Aspect Ratio setting value
+            ToneEffect (sigma_ptpy.enum.ToneEffect): Tone setting value in Monochrome mode
+            AFAuxLightEF (sigma_ptpy.enum.AFAuxLightEF): Auxiliary light activation setting for external flash"""
+        if (IntervalTimerSecond is not None) != (IntervalTimerFrame is not None):
+            raise ValueError("both of IntervalTimerSecond and IntervalTimerFrame must be given.")
+
+        data = Container(
+            _Header=0x0,
+            FieldPresent=Container(
+                IntervalTimer=(IntervalTimerSecond is not None),
+                ColorTemp=(ColorTemp is not None),
+                AspectRatio=(AspectRatio is not None),
+                ToneEffect=(ToneEffect is not None),
+                AFAuxLightEF=(AFAuxLightEF is not None),
+                _Reserved0=False, _Reserved1=False, _Reserved2=False, _Reserved3=False,
+                _Reserved4=False, _Reserved5=False, _Reserved6=False, _Reserved7=False,
+                _Reserved8=False, _Reserved9=False, _Reserved10=False,
+            ),
+            IntervalTimerSecond=IntervalTimerSecond,
+            IntervalTimerFrame=IntervalTimerFrame,
+            IntervalTimerSecondRemain=0,
+            IntervalTimerFrameRemain=0,
+            ColorTemp=ColorTemp,
+            AspectRatio=AspectRatio,
+            ToneEffect=ToneEffect,
+            AFAuxLightEF=AFAuxLightEF,
+            _Reserved0=None, _Reserved1=None, _Reserved2=None, _Reserved3=None,
+            _Reserved4=None, _Reserved5=None, _Reserved6=None, _Reserved7=None,
+            _Reserved8=None, _Reserved9=None, _Reserved10=None, _Parity=0
+        )
+        return self.__set_cam_data_group('SigmaSetCamDataGroup5', _CamDataGroup5, data)
 
     def __set_cam_data_group(self, opcode, schema, data):
         payload = self._build_if_not_data(data, schema)

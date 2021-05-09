@@ -1,10 +1,22 @@
 from sigma_ptpy import SigmaPTPy
+from sigma_ptpy.enum import ApiConfigTag
 from sigma_ptpy.apex import ISOSpeedConverter, Aperture3Converter, ExpComp3Converter, ShutterSpeed3Converter
 
 camera = SigmaPTPy()
 
 with camera.session():
-    camera.config_api()
+    cnf = camera.config_api()
+
+    print("ConfigApi:")
+    for tag, val in cnf:
+        if tag == ApiConfigTag.CameraModel:
+            print(f"  Camera Model = {val}")
+        elif tag == ApiConfigTag.SerialNumber:
+            print(f"  Serial Number = {val}")
+        elif tag == ApiConfigTag.FirmwareVersion:
+            print(f"  Firmware version = {val}")
+        elif tag == ApiConfigTag.CommunicationVersion:
+            print(f"  Communication Version = {val[0]}")
 
     d1 = camera.get_cam_data_group1()
 
@@ -87,3 +99,50 @@ with camera.session():
         print(f"  TimerSound = {str(d3.TimerSound)}")
     if d3.FieldPresent.DestToSave:
         print(f"  DestToSave = {str(d3.DestToSave)}")
+
+    print("CamDataGroup4:")
+    d4 = camera.get_cam_data_group4()
+
+    if d4.FieldPresent.DCCropMode:
+        print(f"  DCCropMode = {str(d4.DCCropMode)}")
+    if d4.FieldPresent.LVMagnifyRatio:
+        print(f"  LVMagnifyRatio = {str(d4.LVMagnifyRatio)}")
+    if d4.FieldPresent.HighISOExt:
+        print(f"  HighISOExt = {str(d4.HighISOExt)}")
+    if d4.FieldPresent.ContShootSpeed:
+        print(f"  ContShootSpeed = {str(d4.ContShootSpeed)}")
+    if d4.FieldPresent.HDR:
+        print(f"  HDR = {str(d4.HDR)}")
+    if d4.FieldPresent.DNGQuality:
+        print(f"  DNGQuality = {str(d4.DNGQuality)}")
+    if d4.FieldPresent.FillLight:
+        print(f"  FillLight = {str(d4.FillLight)}")
+    if d4.FieldPresent.EImageStab:
+        print(f"  EImageStab = {str(d4.EImageStab)}")
+    if d4.FieldPresent.ShutterSound:
+        print(f"  ShutterSound = {str(d4.ShutterSound)}")
+    if d4.FieldPresent.LOC:
+        print("  LensOpticsCompensation:")
+        print(f"    Distortion = {str(d4.LOCDistortion)}")
+        print(f"    Chromatic Abberation = {str(d4.LOCChromaticAbberation)}")
+        print(f"    Diffraction = {str(d4.LOCDiffraction)}")
+        print(f"    Vignetting = {str(d4.LOCVignetting)}")
+        print(f"    Color Shading = {str(d4.LOCColorShade)}")
+        print(f"    Color Shading Acquirement = {str(d4.LOCColorShadeAcq)}")
+
+    print("CamDataGroup5:")
+    d5 = camera.get_cam_data_group5()
+
+    if d5.FieldPresent.IntervalTimer:
+        print(f"  IntervalTimerSecond = {str(d5.IntervalTimerSecond)}")
+        print(f"  IntervalTimerFrame = {str(d5.IntervalTimerFrame)}")
+        print(f"  IntervalTimerSecondRemain = {str(d5.IntervalTimerSecondRemain)}")
+        print(f"  IntervalTimerFrameRemain = {str(d5.IntervalTimerFrameRemain)}")
+    if d5.FieldPresent.ColorTemp:
+        print(f"  ColorTemp = {str(d5.ColorTemp)}")
+    if d5.FieldPresent.AspectRatio:
+        print(f"  AspectRatio = {str(d5.AspectRatio)}")
+    if d5.FieldPresent.ToneEffect:
+        print(f"  ToneEffect = {str(d5.ToneEffect)}")
+    if d5.FieldPresent.AFAuxLightEF:
+        print(f"  AFAuxLightEF = {str(d5.AFAuxLightEF)}")

@@ -1,12 +1,19 @@
 import unittest
+from construct import Container
 from sigma_ptpy.enum import (
+    DirectoryType,
     DriveMode, SpecialMode, ExposureMode, AEMeteringMode, FlashMode, FlashSetting,
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
-    BatteryKind, AFAuxLight, CaptStatus, DestToSave
+    BatteryKind, AFAuxLight, CaptStatus, DestToSave,
+    DCCropMode, LVMagnifyRatio, HighISOExt, ContShootSpeed, HDR,
+    DNGQuality, LOCDistortion, LOCChromaticAbberation, LOCDiffraction,
+    LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab,
+    ToneEffect, AspectRatio
 )
 from sigma_ptpy.schema import (
-    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3,
-    _CamCaptStatus, _PictFileInfo2
+    _CamDataGroup1, _CamDataGroup2, _CamDataGroup3, _CamDataGroup4, _CamDataGroup5,
+    _DirectoryEntryArray, _CamCaptStatus, _PictFileInfo2,
+    _decode_directory_entry
 )
 
 
@@ -138,13 +145,222 @@ class Test_CamDataGroup3(unittest.TestCase):
         self.assertEqual(res.FieldPresent.LensTeleFocalLength, 1)
         self.assertEqual(res.LensTeleFocalLength, 0x0000)
         self.assertEqual(res.FieldPresent.AFAuxLight, 1)
-        self.assertEqual(res.AFAuxLight, AFAuxLight.OFF)
+        self.assertEqual(res.AFAuxLight, AFAuxLight.Off)
         self.assertEqual(res.FieldPresent.AFBeep, 1)
         self.assertEqual(res.AFBeep, 0x05)
         self.assertEqual(res.FieldPresent.TimerSound, 1)
         self.assertEqual(res.TimerSound, 0x05)
         self.assertEqual(res.FieldPresent.DestToSave, 1)
         self.assertEqual(res.DestToSave, DestToSave.InComputer)
+
+
+class Test_CamDataGroup4(unittest.TestCase):
+    def test_RecvData(self):
+        res = _CamDataGroup4.parse(b"\x11\xf0\x3f\x00\x03\x01\x03\xff\x0e\x00\x01\x01\x02\x01\xfe\x02\x02\x05\x60")
+
+        self.assertEqual(res.FieldPresent.DCCropMode, 1)
+        self.assertEqual(res.DCCropMode, DCCropMode.Auto)
+        self.assertEqual(res.FieldPresent.LVMagnifyRatio, 1)
+        self.assertEqual(res.LVMagnifyRatio, LVMagnifyRatio.x8)
+        self.assertEqual(res.FieldPresent.HighISOExt, 1)
+        self.assertEqual(res.HighISOExt, HighISOExt.Off)
+        self.assertEqual(res.FieldPresent.ContShootSpeed, 1)
+        self.assertEqual(res.ContShootSpeed, ContShootSpeed.Low)
+        self.assertEqual(res.FieldPresent.HDR, 1)
+        self.assertEqual(res.HDR, HDR.Off)
+        self.assertEqual(res.FieldPresent.DNGQuality, 1)
+        self.assertEqual(res.DNGQuality, DNGQuality.Q14bit)
+        self.assertEqual(res.FieldPresent.FillLight, 1)
+        self.assertEqual(res.FillLight, 0x00)
+        self.assertEqual(res.FieldPresent.LOC, 1)
+        self.assertEqual(res.LOCDistortion, LOCDistortion.Auto)
+        self.assertEqual(res.LOCChromaticAbberation, LOCChromaticAbberation.Auto)
+        self.assertEqual(res.LOCDiffraction, LOCDiffraction.Off)
+        self.assertEqual(res.LOCVignetting, LOCVignetting.Auto)
+        self.assertEqual(res.LOCColorShade, LOCColorShade.Off)
+        self.assertEqual(res.LOCColorShadeAcq, LOCColorShadeAcq.Off)
+        self.assertEqual(res.FieldPresent.EImageStab, 1)
+        self.assertEqual(res.EImageStab, EImageStab.Off)
+        self.assertEqual(res.FieldPresent.ShutterSound, 1)
+        self.assertEqual(res.ShutterSound, 5)
+
+
+class Test_CamDataGroup5(unittest.TestCase):
+    def test_RecvData(self):
+        res = _CamDataGroup5.parse(b"\x0c\x2b\x00\x0a\x00\x01\x00\x00\x01\x58\x1b\x03\x01\xba")
+
+        self.assertEqual(res.FieldPresent.IntervalTimer, 1)
+        self.assertEqual(res.IntervalTimerSecond, 10)
+        self.assertEqual(res.IntervalTimerFrame, 1)
+        self.assertEqual(res.IntervalTimerSecondRemain, 0)
+        self.assertEqual(res.IntervalTimerFrameRemain, 1)
+        self.assertEqual(res.FieldPresent.ColorTemp, 1)
+        self.assertEqual(res.ColorTemp, 7000)
+        self.assertEqual(res.FieldPresent.AspectRatio, 1)
+        self.assertEqual(res.AspectRatio, AspectRatio.W3H2)
+        self.assertEqual(res.FieldPresent.ToneEffect, 1)
+        self.assertEqual(res.ToneEffect, ToneEffect.BAndW)
+        self.assertEqual(res.FieldPresent.AFAuxLightEF, 0)
+
+
+class Test_DirectoryEntryArray(unittest.TestCase):
+    def test_ApiConfig(self):
+        rawdata = \
+            b"\x4a\x00\x00\x00\x04\x00\x00\x00\x01\x00\x02\x00\x09\x00\x00\x00\x3c\x00\x00\x00\x02" \
+            b"\x00\x02\x00\x09\x00\x00\x00\x45\x00\x00\x00\x03\x00\x02\x00\x04\x00\x00\x00\x56\x38" \
+            b"\x32\x00\x05\x00\x0b\x00\x01\x00\x00\x00\x52\xb8\x9e\x3f\x00\x00\x00\x00\x53\x49\x47" \
+            b"\x4d\x41\x20\x66\x70\x00\x39\x31\x34\x30\x32\x30\x38\x31\x00\xa9"
+        res = _DirectoryEntryArray.parse(rawdata)
+
+        self.assertEqual(res.DataLength, 0x4a)
+        self.assertEqual(res.DirectoryCount, 4)
+        self.assertEqual(len(res.Entries), 5)
+
+        self.assertEqual(res.Entries[0].Tag, 1)
+        self.assertEqual(res.Entries[0].Type, DirectoryType.String)
+        self.assertEqual(res.Entries[0].Count, 9)
+        self.assertEqual(res.Entries[0].Value, b'\x3c\x00\x00\x00')
+
+        self.assertEqual(res.Entries[1].Tag, 2)
+        self.assertEqual(res.Entries[1].Type, DirectoryType.String)
+        self.assertEqual(res.Entries[1].Count, 9)
+        self.assertEqual(res.Entries[1].Value, b'\x45\x00\x00\x00')
+
+        self.assertEqual(res.Entries[2].Tag, 3)
+        self.assertEqual(res.Entries[2].Type, DirectoryType.String)
+        self.assertEqual(res.Entries[2].Count, 4)
+        self.assertEqual(res.Entries[2].Value, b'\x56\x38\x32\x00')
+
+        self.assertEqual(res.Entries[3].Tag, 5)
+        self.assertEqual(res.Entries[3].Type, DirectoryType.Float32)
+        self.assertEqual(res.Entries[3].Count, 1)
+        self.assertEqual(res.Entries[3].Value, b'\x52\xb8\x9e\x3f')
+
+    def test_CamDataGroupFocus(self):
+        res = _DirectoryEntryArray.parse(
+            b"\x94\x00\x00\x00\x0b\x00\x00\x00\x01\x00\x01\x00\x01\x00\x00\x00\x03"
+            b"\x00\x00\x00\x02\x00\x01\x00\x01\x00\x00\x00\x00\x00\x00\x00\x03\x00"
+            b"\x01\x00\x01\x00\x00\x00\x00\x00\x00\x00\x04\x00\x01\x00\x01\x00\x00"
+            b"\x00\x00\x00\x00\x00\x0a\x00\x01\x00\x01\x00\x00\x00\x01\x00\x00\x00"
+            b"\x0b\x00\x01\x00\x01\x00\x00\x00\x00\x00\x00\x00\x0c\x00\x01\x00\x01"
+            b"\x00\x00\x00\x00\x00\x00\x00\x0d\x00\x07\x00\x04\x00\x00\x00\x54\x01"
+            b"\x00\x02\x0e\x00\x07\x00\x08\x00\x00\x00\x90\x00\x00\x00\x33\x00\x01"
+            b"\x00\x01\x00\x00\x00\x00\x00\x00\x00")
+
+        self.assertEqual(res.DataLength, 0x94)
+        self.assertEqual(res.DirectoryCount, 11)
+        self.assertEqual(len(res.Entries), 10)  # DirectoryCount is possibly wrong.
+
+        self.assertEqual(res.Entries[0].Tag, 1)
+        self.assertEqual(res.Entries[0].Type, DirectoryType.UInt8)
+        self.assertEqual(res.Entries[0].Count, 1)
+        self.assertEqual(res.Entries[0].Value, b'\x03\x00\x00\x00')
+
+        self.assertEqual(res.Entries[1].Tag, 2)
+        self.assertEqual(res.Entries[1].Type, DirectoryType.UInt8)
+        self.assertEqual(res.Entries[1].Count, 1)
+        self.assertEqual(res.Entries[1].Value, b'\x00\x00\x00\x00')
+
+        self.assertEqual(res.Entries[2].Tag, 3)
+        self.assertEqual(res.Entries[2].Type, DirectoryType.UInt8)
+        self.assertEqual(res.Entries[2].Count, 1)
+        self.assertEqual(res.Entries[2].Value, b'\x00\x00\x00\x00')
+
+        self.assertEqual(res.Entries[3].Tag, 4)
+        self.assertEqual(res.Entries[3].Type, DirectoryType.UInt8)
+        self.assertEqual(res.Entries[3].Count, 1)
+        self.assertEqual(res.Entries[3].Value, b'\x00\x00\x00\x00')
+
+        self.assertEqual(res.Entries[4].Tag, 0x0a)
+        self.assertEqual(res.Entries[4].Type, DirectoryType.UInt8)
+        self.assertEqual(res.Entries[4].Count, 1)
+        self.assertEqual(res.Entries[4].Value, b'\x01\x00\x00\x00')
+
+        self.assertEqual(res.Entries[5].Tag, 0x0b)
+        self.assertEqual(res.Entries[5].Type, DirectoryType.UInt8)
+        self.assertEqual(res.Entries[5].Count, 1)
+        self.assertEqual(res.Entries[5].Value, b'\x00\x00\x00\x00')
+
+        self.assertEqual(res.Entries[6].Tag, 0x0c)
+        self.assertEqual(res.Entries[6].Type, DirectoryType.UInt8)
+        self.assertEqual(res.Entries[6].Count, 1)
+        self.assertEqual(res.Entries[6].Value, b'\x00\x00\x00\x00')
+
+        self.assertEqual(res.Entries[7].Tag, 0x0d)
+        self.assertEqual(res.Entries[7].Type, DirectoryType.Any8)
+        self.assertEqual(res.Entries[7].Count, 4)
+        self.assertEqual(res.Entries[7].Value, b'\x54\x01\x00\x02')
+
+        self.assertEqual(res.Entries[8].Tag, 0x0e)
+        self.assertEqual(res.Entries[8].Type, DirectoryType.Any8)
+        self.assertEqual(res.Entries[8].Count, 8)
+        self.assertEqual(res.Entries[8].Value, b'\x90\x00\x00\x00')
+
+        self.assertEqual(res.Entries[9].Tag, 0x33)
+        self.assertEqual(res.Entries[9].Type, DirectoryType.UInt8)
+        self.assertEqual(res.Entries[9].Count, 1)
+        self.assertEqual(res.Entries[9].Value, b'\x00\x00\x00\x00')
+
+
+class Test__decode_directory_entries(unittest.TestCase):
+    def test_UInt8(self):
+        actual = _decode_directory_entry(Container(
+            Type=DirectoryType.UInt8,
+            Count=1,
+            Value=b'\x03\x00\x00\x00'
+        ), None)
+        self.assertEqual(actual, [3])
+
+        actual = _decode_directory_entry(Container(
+            Type=DirectoryType.UInt8,
+            Count=5,
+            Value=b'\x01\x00\x00\x00'
+        ), b"\x00\x01\x02\03\x04\x05")
+        self.assertEqual(actual, [1, 2, 3, 4, 5])
+
+    def test_UInt16(self):
+        actual = _decode_directory_entry(Container(
+            Type=DirectoryType.UInt16,
+            Count=1,
+            Value=b'\x03\x01\x00\x00'
+        ), None)
+        self.assertEqual(actual, [0x0103])
+
+        actual = _decode_directory_entry(Container(
+            Type=DirectoryType.UInt16,
+            Count=3,
+            Value=b'\x01\x00\x00\x00'
+        ), b"\x00\x01\x02\03\x04\x05\x06")
+        self.assertEqual(actual, [0x0201, 0x0403, 0x0605])
+
+    def test_Float32(self):
+        actual = _decode_directory_entry(Container(
+            Type=DirectoryType.Float32,
+            Count=1,
+            Value=b"\x52\xb8\x9e\x3f"
+        ), None)
+        self.assertEqual(len(actual), 1)
+        self.assertAlmostEqual(actual[0], 1.2400000095367432)
+
+    def test_String(self):
+        actual = _decode_directory_entry(Container(
+            Type=DirectoryType.String,
+            Count=4,
+            Value=b"\x56\x38\x32\x00"
+        ), None)
+        self.assertEqual(actual, "V82")
+
+        rawdata = \
+            b"\x4a\x00\x00\x00\x04\x00\x00\x00\x01\x00\x02\x00\x09\x00\x00\x00\x3c\x00\x00\x00\x02" \
+            b"\x00\x02\x00\x09\x00\x00\x00\x45\x00\x00\x00\x03\x00\x02\x00\x04\x00\x00\x00\x56\x38" \
+            b"\x32\x00\x05\x00\x0b\x00\x01\x00\x00\x00\x52\xb8\x9e\x3f\x00\x00\x00\x00\x53\x49\x47" \
+            b"\x4d\x41\x20\x66\x70\x00\x39\x31\x34\x30\x32\x30\x38\x31\x00\xa9"
+        actual = _decode_directory_entry(Container(
+            Type=DirectoryType.String,
+            Count=9,
+            Value=b"\x3c\x00\x00\x00"
+        ), rawdata)
+        self.assertEqual(actual, "SIGMA fp")
 
 
 class Test_CamCaptStatus(unittest.TestCase):
