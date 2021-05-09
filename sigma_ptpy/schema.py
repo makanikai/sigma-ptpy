@@ -1,11 +1,13 @@
 """Schema definitions for the SIGMA fp series"""
 
+import struct
 from construct import (
     Adapter, Bytes, FlagsEnum,
     Int16ub, Int16ul, Int32ul, Int8un,
-    Pass, Struct, If, String, CString, GreedyBytes, Mapping
+    Pass, Struct, If, String, CString, GreedyBytes, GreedyRange, Mapping
 )
 from .enum import (
+    DirectoryType,
     ProgramShift, ISOAuto, ABSetting, DriveMode, SpecialMode,
     ExposureMode, AEMeteringMode, FlashType, FlashMode, FlashSetting,
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
@@ -299,3 +301,64 @@ _BigPartialPictFile = Struct(
     'AcquiredSize' / Int32ul,
     'PartialData' / GreedyBytes
 )
+
+_DirectoryEntry = Struct(
+    'Tag' / Int16ul,  # Tag. Defines the individual ID for each instruction.
+    'Type' / _Enum(Int16ul, DirectoryType),  # Directory type
+    'Count' / Int32ul,  # the number of elements included in the directory entry
+    'Value' / Bytes(4)
+    # Offset to value. If data fits in 4 bytes, enter the value; otherwise, enter the offset from
+    # the reference position. (The data length position is used as the reference position.)
+)
+
+_DirectoryEntryArray = Struct(
+    'DataLength' / Int32ul,
+    'DirectoryCount' / Int32ul,
+    'Entries' / GreedyRange(_DirectoryEntry)
+)
+
+
+def _decode_int(b, signed=True):
+    return int.from_bytes(b, byteorder="little", signed=signed)
+
+
+def _extract_payload(src, rawdata, size):
+    n = src.Count * size
+    if n <= 4:
+        return src.Value[0:n]
+    else:
+        i = _decode_int(src.Value)
+        return rawdata[i:i+n]
+
+
+def _decode_int_array(src, rawdata, size, signed):
+    b = _extract_payload(src, rawdata, size)
+    return [_decode_int(b[i:i+size], signed=signed) for i in range(0, len(b), size)]
+
+
+def _decode_float_array(src, rawdata, size, fmt):
+    b = _extract_payload(src, rawdata, size)
+    return list(struct.unpack("<" + fmt * src.Count, b))
+
+
+def _decode_rational_array(src, rawdata, signed):
+    b = _extract_payload(src, rawdata, 8)
+    return [(_decode_int(b[i:i+4], signed=signed), _decode_int(b[i+4:i+8], signed=signed)) for i in range(0, len(b), 8)]
+
+
+def _decode_directory_entry(src, rawdata):
+    switch_ = {
+        DirectoryType.UInt8: lambda: _decode_int_array(src, rawdata, 1, False),
+        DirectoryType.Any8: lambda: _decode_int_array(src, rawdata, 1, False),
+        DirectoryType.Int8: lambda: _decode_int_array(src, rawdata, 1, True),
+        DirectoryType.UInt16: lambda: _decode_int_array(src, rawdata, 2, False),
+        DirectoryType.Int16: lambda: _decode_int_array(src, rawdata, 2, True),
+        DirectoryType.UInt32: lambda: _decode_int_array(src, rawdata, 4, False),
+        DirectoryType.Int32: lambda: _decode_int_array(src, rawdata, 4, True),
+        DirectoryType.Float32: lambda: _decode_float_array(src, rawdata, 4, "f"),
+        DirectoryType.Float64: lambda: _decode_float_array(src, rawdata, 8, "d"),
+        DirectoryType.URational: lambda: _decode_rational_array(src, rawdata, False),
+        DirectoryType.Rational: lambda: _decode_rational_array(src, rawdata, True),
+        DirectoryType.String: lambda: _extract_payload(src, rawdata, 1)[0:-1].decode("ascii"),
+    }
+    return switch_[src.Type]()

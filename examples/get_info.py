@@ -1,10 +1,22 @@
 from sigma_ptpy import SigmaPTPy
+from sigma_ptpy.enum import ApiConfigTag
 from sigma_ptpy.apex import ISOSpeedConverter, Aperture3Converter, ExpComp3Converter, ShutterSpeed3Converter
 
 camera = SigmaPTPy()
 
 with camera.session():
-    camera.config_api()
+    cnf = camera.config_api()
+
+    print("ConfigApi:")
+    for tag, val in cnf:
+        if tag == ApiConfigTag.CameraModel:
+            print(f"  Camera Model = {val}")
+        elif tag == ApiConfigTag.SerialNumber:
+            print(f"  Serial Number = {val}")
+        elif tag == ApiConfigTag.FirmwareVersion:
+            print(f"  Firmware version = {val}")
+        elif tag == ApiConfigTag.CommunicationVersion:
+            print(f"  Communication Version = {val[0]}")
 
     d1 = camera.get_cam_data_group1()
 

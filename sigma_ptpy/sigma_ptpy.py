@@ -2,10 +2,11 @@ import logging
 from construct import Container
 from ptpy import USB
 
-from .enum import CaptureMode
+from .enum import ApiConfigTag, CaptureMode
 from .schema import (
     _CamDataGroup1, _CamDataGroup2, _CamDataGroup3, _CamDataGroup4, _CamDataGroup5,
-    _CamCaptStatus, _SnapCommand, _PictFileInfo2, _BigPartialPictFile
+    _DirectoryEntryArray, _CamCaptStatus, _SnapCommand, _PictFileInfo2, _BigPartialPictFile,
+    _decode_directory_entry
 )
 from .sigma_ptp import SigmaPTP
 
@@ -57,12 +58,24 @@ class SigmaPTPy(SigmaPTP, USB):
         is synchronized with the switch status.) Furthermore, API does not accept any
         operation other than the power-off operation.
         The data to be handled is based on the IFD structure."""
-        data = Container(
-            OperationCode='SigmaConfigApi',
+        return self.__get_directory_entry_array('SigmaConfigApi', ApiConfigTag)
+
+    def __get_directory_entry_array(self, opcode, TagEnum):
+        ptp = Container(
+            OperationCode=opcode,
             SessionID=self._session,
             TransactionID=self._transaction,
             Parameter=[0])
-        return self.recv(data)
+        response = self.recv(ptp)
+        logger.debug("RECV {} {}".format(opcode, _bytes_to_hex(response.Data)))
+        dirarray = self._parse_if_data(response, _DirectoryEntryArray)
+        entries = dirarray.Entries[0:min(len(dirarray.Entries), dirarray.DirectoryCount)]
+        tags = set(e.value for e in TagEnum)
+        parsed = [(
+            TagEnum(entry.Tag) if entry.Tag in tags else entry.Tag,
+            _decode_directory_entry(entry, response.Data)
+        ) for entry in entries]
+        return parsed
 
     def get_cam_data_group1(self):
         """This instruction acquires DataGroup1 status information from the camera.

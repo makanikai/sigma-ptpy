@@ -3,6 +3,28 @@
 from enum import IntEnum
 
 
+class DirectoryType(IntEnum):
+    UInt8 = 0x01
+    String = 0x02
+    UInt16 = 0x03
+    UInt32 = 0x04
+    URational = 0x05
+    Int8 = 0x06
+    Any8 = 0x07
+    Int16 = 0x08
+    Int32 = 0x09
+    Rational = 0x0A
+    Float32 = 0x0B
+    Float64 = 0x0C
+
+
+class ApiConfigTag(IntEnum):
+    CameraModel = 1
+    SerialNumber = 2
+    FirmwareVersion = 3
+    CommunicationVersion = 5
+
+
 class ProgramShift(IntEnum):
     """The dial operation amount in the camera side is not reflected."""
     Null = 0  #: Uninitialized
