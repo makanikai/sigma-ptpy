@@ -1,6 +1,9 @@
 from sigma_ptpy import SigmaPTPy
 from sigma_ptpy.apex import ISOSpeedConverter, Aperture3Converter, ExpComp3Converter, ShutterSpeed3Converter
 
+from sigma_ptpy.enum import ISOAuto, WhiteBalance, ColorSpace
+from sigma_ptpy.schema import CamDataGroup1, CamDataGroup2, CamDataGroup3, CamDataGroup4, CamDataGroup5
+
 camera = SigmaPTPy()
 
 with camera.session():
@@ -12,134 +15,99 @@ with camera.session():
     print(f"  Firmware version = {cnf.FirmwareVersion}")
     print(f"  Communication Version = {cnf.CommunicationVersion}")
 
+    camera.set_cam_data_group1(CamDataGroup1(ISOAuto=ISOAuto.Manual))
+    camera.set_cam_data_group2(CamDataGroup2(WhiteBalance=WhiteBalance.Sunlight))
+    camera.set_cam_data_group3(CamDataGroup3(ColorSpace=ColorSpace.AdobeRGB))
+    camera.set_cam_data_group4(CamDataGroup4(ShutterSound=2))
+    camera.set_cam_data_group5(CamDataGroup5(IntervalTimerSecond=10, IntervalTimerFrame=10))
+
     d1 = camera.get_cam_data_group1()
 
     print("CamDataGroup1:")
-
-    if d1.FieldPresent.ShutterSpeed:
+    if d1.ShutterSpeed is not None:
         ss = ShutterSpeed3Converter.decode_uint8(d1.ShutterSpeed)
         print(f"  ShutterSpeed = {ss} (%#02x)" % d1.ShutterSpeed)
-    if d1.FieldPresent.Aperture:
+    if d1.Aperture is not None:
         ec = Aperture3Converter.decode_uint8(d1.Aperture)
         print(f"  Aperture = {ec} (%#02x)" % d1.Aperture)
-    if d1.FieldPresent.ISOAuto:
+    if d1.ISOAuto is not None:
         print(f"  ISOAuto = {str(d1.ISOAuto)}")
-    if d1.FieldPresent.ISOSpeed:
+    if d1.ISOSpeed is not None:
         iso = ISOSpeedConverter.decode_uint8(d1.ISOSpeed)
         print(f"  ISOSpeed = {iso} (%#02x)" % d1.ISOSpeed)
-    if d1.FieldPresent.ExpComp:
+    if d1.ExpComp is not None:
         ec = ExpComp3Converter.decode_uint8(d1.ExpComp)
         print(f"  ExpCompensation = {ec} (%#02x)" % d1.ExpComp)
-    if d1.FieldPresent.ABValue:
+    if d1.ABValue is not None:
         ab = ExpComp3Converter.decode_uint8(d1.ExpComp)
         print(f"  ABValue = {ab} (%#02x)" % d1.ABValue)
-    if d1.FieldPresent.ABSetting:
-        print(f"  ABSetting = {str(d1.ABSetting)}")
-    if d1.FieldPresent.FrameBufferState:
-        print(f"  FrameBufferState = {d1.FrameBufferState} (shots)")
-    if d1.FieldPresent.MediaFreeSpace:
-        print(f"  MediaFreeSpace = {d1.MediaFreeSpace} (shots)")
-    if d1.FieldPresent.MediaStatus:
-        print(f"  MediaStatus = {str(d1.MediaStatus)}")
-    if d1.FieldPresent.CurrentLensFocalLength:
-        print(f"  CurrentLensFocalLength = {d1.CurrentLensFocalLength} (mm)")
-    if d1.FieldPresent.BatteryState:
-        print(f"  BatteryState = {str(d1.BatteryState)}")
-    if d1.FieldPresent.ABShotRemainNumber:
-        print(f"  ABShotRemainNumber = {str(d1.ABShotRemainNumber)}")
-    if d1.FieldPresent.ExpCompExcludeAB:
-        print(f"  ExpCompExcludeAB = {str(d1.ExpCompExcludeAB)}")
 
-    print("CamDataGroup2:")
+    print(f"  ABSetting = {str(d1.ABSetting)}")
+    print(f"  FrameBufferState = {d1.FrameBufferState} (shots)")
+    print(f"  MediaFreeSpace = {d1.MediaFreeSpace} (shots)")
+    print(f"  MediaStatus = {str(d1.MediaStatus)}")
+    print(f"  CurrentLensFocalLength = {d1.CurrentLensFocalLength} (mm)")
+    print(f"  BatteryState = {str(d1.BatteryState)}")
+    print(f"  ABShotRemainNumber = {str(d1.ABShotRemainNumber)}")
+    print(f"  ExpCompExcludeAB = {str(d1.ExpCompExcludeAB)}")
+
     d2 = camera.get_cam_data_group2()
 
-    if d2.FieldPresent.DriveMode:
-        print(f"  DriveMode = {str(d2.DriveMode)}")
-    if d2.FieldPresent.SpecialMode:
-        print(f"  SpecialMode = {str(d2.SpecialMode)}")
-    if d2.FieldPresent.ExposureMode:
-        print(f"  ExposureMode = {str(d2.ExposureMode)}")
-    if d2.FieldPresent.AEMeteringMode:
-        print(f"  AEMeteringMode = {str(d2.AEMeteringMode)}")
-    if d2.FieldPresent.FlashType:
-        print(f"  FlashType = {str(d2.FlashType)}")
-    if d2.FieldPresent.FlashMode:
-        print(f"  FlashMode = {str(d2.FlashMode)}")
-    if d2.FieldPresent.FlashSetting:
-        print(f"  FlashSetting = {str(d2.FlashSetting)}")
-    if d2.FieldPresent.WhiteBalance:
-        print(f"  WhiteBalance = {str(d2.WhiteBalance)}")
-    if d2.FieldPresent.Resolution:
-        print(f"  Resolution = {str(d2.Resolution)}")
-    if d2.FieldPresent.ImageQuality:
-        print(f"  ImageQuality = {str(d2.ImageQuality)}")
+    print("CamDataGroup2:")
+    print(f"  DriveMode = {str(d2.DriveMode)}")
+    print(f"  SpecialMode = {str(d2.SpecialMode)}")
+    print(f"  ExposureMode = {str(d2.ExposureMode)}")
+    print(f"  AEMeteringMode = {str(d2.AEMeteringMode)}")
+    print(f"  FlashType = {str(d2.FlashType)}")
+    print(f"  FlashMode = {str(d2.FlashMode)}")
+    print(f"  FlashSetting = {str(d2.FlashSetting)}")
+    print(f"  WhiteBalance = {str(d2.WhiteBalance)}")
+    print(f"  Resolution = {str(d2.Resolution)}")
+    print(f"  ImageQuality = {str(d2.ImageQuality)}")
 
-    print("CamDataGroup3:")
     d3 = camera.get_cam_data_group3()
 
-    if d3.FieldPresent.ColorSpace:
-        print(f"  ColorSpace = {str(d3.ColorSpace)}")
-    if d3.FieldPresent.ColorMode:
-        print(f"  ColorMode = {str(d3.ColorMode)}")
-    if d3.FieldPresent.LensWideFocalLength:
-        print(f"  LensWideFocalLength = {str(d3.LensWideFocalLength)}")
-    if d3.FieldPresent.LensTeleFocalLength:
-        print(f"  LensTeleFocalLength = {str(d3.LensTeleFocalLength)}")
-    if d3.FieldPresent.AFAuxLight:
-        print(f"  AFAuxLight = {str(d3.AFAuxLight)}")
-    if d3.FieldPresent.AFBeep:
-        print(f"  AFBeep = {str(d3.AFBeep)}")
-    if d3.FieldPresent.TimerSound:
-        print(f"  TimerSound = {str(d3.TimerSound)}")
-    if d3.FieldPresent.DestToSave:
-        print(f"  DestToSave = {str(d3.DestToSave)}")
+    print("CamDataGroup3:")
+    print(f"  ColorSpace = {str(d3.ColorSpace)}")
+    print(f"  ColorMode = {str(d3.ColorMode)}")
+    print(f"  LensWideFocalLength = {str(d3.LensWideFocalLength)}")
+    print(f"  LensTeleFocalLength = {str(d3.LensTeleFocalLength)}")
+    print(f"  AFAuxLight = {str(d3.AFAuxLight)}")
+    print(f"  AFBeep = {str(d3.AFBeep)}")
+    print(f"  TimerSound = {str(d3.TimerSound)}")
+    print(f"  DestToSave = {str(d3.DestToSave)}")
 
-    print("CamDataGroup4:")
     d4 = camera.get_cam_data_group4()
 
-    if d4.FieldPresent.DCCropMode:
-        print(f"  DCCropMode = {str(d4.DCCropMode)}")
-    if d4.FieldPresent.LVMagnifyRatio:
-        print(f"  LVMagnifyRatio = {str(d4.LVMagnifyRatio)}")
-    if d4.FieldPresent.HighISOExt:
-        print(f"  HighISOExt = {str(d4.HighISOExt)}")
-    if d4.FieldPresent.ContShootSpeed:
-        print(f"  ContShootSpeed = {str(d4.ContShootSpeed)}")
-    if d4.FieldPresent.HDR:
-        print(f"  HDR = {str(d4.HDR)}")
-    if d4.FieldPresent.DNGQuality:
-        print(f"  DNGQuality = {str(d4.DNGQuality)}")
-    if d4.FieldPresent.FillLight:
-        print(f"  FillLight = {str(d4.FillLight)}")
-    if d4.FieldPresent.EImageStab:
-        print(f"  EImageStab = {str(d4.EImageStab)}")
-    if d4.FieldPresent.ShutterSound:
-        print(f"  ShutterSound = {str(d4.ShutterSound)}")
-    if d4.FieldPresent.LOC:
-        print("  LensOpticsCompensation:")
-        print(f"    Distortion = {str(d4.LOCDistortion)}")
-        print(f"    Chromatic Abberation = {str(d4.LOCChromaticAbberation)}")
-        print(f"    Diffraction = {str(d4.LOCDiffraction)}")
-        print(f"    Vignetting = {str(d4.LOCVignetting)}")
-        print(f"    Color Shading = {str(d4.LOCColorShade)}")
-        print(f"    Color Shading Acquirement = {str(d4.LOCColorShadeAcq)}")
+    print("CamDataGroup4:")
+    print(f"  DCCropMode = {str(d4.DCCropMode)}")
+    print(f"  LVMagnifyRatio = {str(d4.LVMagnifyRatio)}")
+    print(f"  HighISOExt = {str(d4.HighISOExt)}")
+    print(f"  ContShootSpeed = {str(d4.ContShootSpeed)}")
+    print(f"  HDR = {str(d4.HDR)}")
+    print(f"  DNGQuality = {str(d4.DNGQuality)}")
+    print(f"  FillLight = {str(d4.FillLight)}")
+    print(f"  EImageStab = {str(d4.EImageStab)}")
+    print(f"  ShutterSound = {str(d4.ShutterSound)}")
+    print("  LensOpticsCompensation:")
+    print(f"    Distortion = {str(d4.LOCDistortion)}")
+    print(f"    Chromatic Abberation = {str(d4.LOCChromaticAbberation)}")
+    print(f"    Diffraction = {str(d4.LOCDiffraction)}")
+    print(f"    Vignetting = {str(d4.LOCVignetting)}")
+    print(f"    Color Shading = {str(d4.LOCColorShade)}")
+    print(f"    Color Shading Acquirement = {str(d4.LOCColorShadeAcq)}")
 
-    print("CamDataGroup5:")
     d5 = camera.get_cam_data_group5()
 
-    if d5.FieldPresent.IntervalTimer:
-        print(f"  IntervalTimerSecond = {str(d5.IntervalTimerSecond)}")
-        print(f"  IntervalTimerFrame = {str(d5.IntervalTimerFrame)}")
-        print(f"  IntervalTimerSecondRemain = {str(d5.IntervalTimerSecondRemain)}")
-        print(f"  IntervalTimerFrameRemain = {str(d5.IntervalTimerFrameRemain)}")
-    if d5.FieldPresent.ColorTemp:
-        print(f"  ColorTemp = {str(d5.ColorTemp)}")
-    if d5.FieldPresent.AspectRatio:
-        print(f"  AspectRatio = {str(d5.AspectRatio)}")
-    if d5.FieldPresent.ToneEffect:
-        print(f"  ToneEffect = {str(d5.ToneEffect)}")
-    if d5.FieldPresent.AFAuxLightEF:
-        print(f"  AFAuxLightEF = {str(d5.AFAuxLightEF)}")
+    print("CamDataGroup5:")
+    print(f"  IntervalTimerSecond = {str(d5.IntervalTimerSecond)}")
+    print(f"  IntervalTimerFrame = {str(d5.IntervalTimerFrame)}")
+    print(f"  IntervalTimerSecondRemain = {str(d5.IntervalTimerSecondRemain)}")
+    print(f"  IntervalTimerFrameRemain = {str(d5.IntervalTimerFrameRemain)}")
+    print(f"  ColorTemp = {str(d5.ColorTemp)}")
+    print(f"  AspectRatio = {str(d5.AspectRatio)}")
+    print(f"  ToneEffect = {str(d5.ToneEffect)}")
+    print(f"  AFAuxLightEF = {str(d5.AFAuxLightEF)}")
 
     focus = camera.get_cam_data_group_focus()
 

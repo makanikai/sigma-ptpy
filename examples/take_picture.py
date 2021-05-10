@@ -1,4 +1,5 @@
 from sigma_ptpy import SigmaPTPy
+from sigma_ptpy.schema import CamDataGroup3, SnapCommand
 from sigma_ptpy.enum import DestToSave, CaptStatus
 import cv2
 import numpy as np
@@ -9,8 +10,8 @@ if __name__ == '__main__':
 
     with camera.session():
         camera.config_api()
-        camera.set_cam_data_group3(DestToSave=DestToSave.InComputer)
-        camera.snap_command()  # Start shooting
+        camera.set_cam_data_group3(CamDataGroup3(DestToSave=DestToSave.InComputer))
+        camera.snap_command(SnapCommand())  # Start shooting
 
         # Wait to complete shooting
         while True:
