@@ -26,6 +26,7 @@ class SigmaPTP(PTP):
             SigmaGetPictFileInfo2=0x902D,
             SigmaGetCamCanSetInfo5=0x9030,
             SigmaGetCamDataGroupFocus=0x9031,
+            SigmaSetCamDataGroupFocus=0x9032,
             SigmaGetCamDataGroupMovie=0x9033,
             SigmaSetCamDataGroupMovie=0x9034,
             SigmaConfigApi=0x9035,
@@ -51,6 +52,8 @@ class SigmaPTP(PTP):
             SigmaSetCamDataGroup5=0x9028,
             SigmaGetViewFrame=0x902B,
             SigmaGetPictFileInfo2=0x902D,
+            SigmaGetCamDataGroupFocus=0x9031,
+            SigmaSetCamDataGroupFocus=0x9032,
             SigmaConfigApi=0x9035,
             **vendor_operations
         )

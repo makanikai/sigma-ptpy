@@ -2,11 +2,11 @@ import logging
 from construct import Container
 from ptpy import USB
 
-from .enum import ApiConfigTag, CaptureMode
+from .enum import CaptureMode
 from .schema import (
     _CamDataGroup1, _CamDataGroup2, _CamDataGroup3, _CamDataGroup4, _CamDataGroup5,
-    _DirectoryEntryArray, _CamCaptStatus, _SnapCommand, _PictFileInfo2, _BigPartialPictFile,
-    _decode_directory_entry
+    _CamCaptStatus, _SnapCommand, _PictFileInfo2, _BigPartialPictFile,
+    ApiConfig, CamDataGroupFocus
 )
 from .sigma_ptp import SigmaPTP
 
@@ -47,6 +47,28 @@ class SigmaPTPy(SigmaPTP, USB):
         logger.debug("Init SigmaPTPy")
         super(SigmaPTPy, self).__init__(*args, **kwargs)
 
+    def __recv(self, opcode, SchemaClass):
+        ptp = Container(
+            OperationCode=opcode,
+            SessionID=self._session,
+            TransactionID=self._transaction,
+            Parameter=[0])
+        response = self.recv(ptp)
+        logger.debug("RECV {} {}".format(opcode, _bytes_to_hex(response.Data)))
+        instance = SchemaClass()
+        instance.decode(response.Data)
+        return instance
+
+    def __send(self, opcode, data):
+        payload = data.encode()
+        logger.debug("SEND {} {}".format(opcode, _bytes_to_hex(payload)))
+        ptp = Container(
+            OperationCode=opcode,
+            SessionID=self._session,
+            TransactionID=self._transaction,
+            Parameter=[])
+        return self.send(ptp, payload)
+
     def config_api(self):
         """This is the first instruction issued to the camera by the application that uses API.
 
@@ -57,25 +79,11 @@ class SigmaPTPy(SigmaPTP, USB):
         which the user specified before using API. However, the movie/still image setting
         is synchronized with the switch status.) Furthermore, API does not accept any
         operation other than the power-off operation.
-        The data to be handled is based on the IFD structure."""
-        return self.__get_directory_entry_array('SigmaConfigApi', ApiConfigTag)
+        The data to be handled is based on the IFD structure.
 
-    def __get_directory_entry_array(self, opcode, TagEnum):
-        ptp = Container(
-            OperationCode=opcode,
-            SessionID=self._session,
-            TransactionID=self._transaction,
-            Parameter=[0])
-        response = self.recv(ptp)
-        logger.debug("RECV {} {}".format(opcode, _bytes_to_hex(response.Data)))
-        dirarray = self._parse_if_data(response, _DirectoryEntryArray)
-        entries = dirarray.Entries[0:min(len(dirarray.Entries), dirarray.DirectoryCount)]
-        tags = set(e.value for e in TagEnum)
-        parsed = [(
-            TagEnum(entry.Tag) if entry.Tag in tags else entry.Tag,
-            _decode_directory_entry(entry, response.Data)
-        ) for entry in entries]
-        return parsed
+        Returns:
+            sigma_ptpy.schema.ApiConfig: the set of values obtained from a camera."""
+        return self.__recv('SigmaConfigApi', ApiConfig)
 
     def get_cam_data_group1(self):
         """This instruction acquires DataGroup1 status information from the camera.
@@ -427,8 +435,8 @@ class SigmaPTPy(SigmaPTP, USB):
                 camera or application operation until the time you exit the menu.
             EImageStab (sigma_ptpy.enum.EImageStab): Setting value of Electronic Image Stabilization
             ShutterSound (sigma_ptpy.enum.ShutterSound): Shutter sound / Recording start/stop sound"""
-        LOC = (LOCDistortion is not None or LOCChromaticAbberation is not None or LOCDiffraction is not None or
-               LOCVignetting is not None or LOCColorShade is not None or LOCColorShadeAcq is not None)
+        LOC = LOCDistortion is not None or LOCChromaticAbberation is not None or LOCDiffraction is not None \
+            or LOCVignetting is not None or LOCColorShade is not None or LOCColorShadeAcq is not None
         data = Container(
             _Header=0x0,
             FieldPresent=Container(
@@ -519,6 +527,22 @@ class SigmaPTPy(SigmaPTP, USB):
             TransactionID=self._transaction,
             Parameter=[])
         return self.send(ptp, payload)
+
+    def get_cam_data_group_focus(self):
+        """This function notifies the PC of the camera setting value.
+        The data to be handled is based on the IFD structure.
+
+        Returns:
+            sigma_ptpy.schema.CamDataGroupFocus: the set of values obtained from a camera."""
+        return self.__recv('SigmaGetCamDataGroupFocus', CamDataGroupFocus)
+
+    def set_cam_data_group_focus(self, focus):
+        """This function changes the camera setting value from the PC.
+        The data to be handled is based on the IFD structure.
+
+        Args:
+            focus (sigma_ptpy.schema.CamDataGroupFocus): the set of values to be sent."""
+        return self.__send('SigmaSetCamDataGroupFocus', focus)
 
     def get_cam_capt_status(self):
         """This instruction acquires the shooting result from the camera.

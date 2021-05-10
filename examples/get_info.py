@@ -1,5 +1,4 @@
 from sigma_ptpy import SigmaPTPy
-from sigma_ptpy.enum import ApiConfigTag
 from sigma_ptpy.apex import ISOSpeedConverter, Aperture3Converter, ExpComp3Converter, ShutterSpeed3Converter
 
 camera = SigmaPTPy()
@@ -8,15 +7,10 @@ with camera.session():
     cnf = camera.config_api()
 
     print("ConfigApi:")
-    for tag, val in cnf:
-        if tag == ApiConfigTag.CameraModel:
-            print(f"  Camera Model = {val}")
-        elif tag == ApiConfigTag.SerialNumber:
-            print(f"  Serial Number = {val}")
-        elif tag == ApiConfigTag.FirmwareVersion:
-            print(f"  Firmware version = {val}")
-        elif tag == ApiConfigTag.CommunicationVersion:
-            print(f"  Communication Version = {val[0]}")
+    print(f"  Camera Model = {cnf.CameraModel}")
+    print(f"  Serial Number = {cnf.SerialNumber}")
+    print(f"  Firmware version = {cnf.FirmwareVersion}")
+    print(f"  Communication Version = {cnf.CommunicationVersion}")
 
     d1 = camera.get_cam_data_group1()
 
@@ -146,3 +140,18 @@ with camera.session():
         print(f"  ToneEffect = {str(d5.ToneEffect)}")
     if d5.FieldPresent.AFAuxLightEF:
         print(f"  AFAuxLightEF = {str(d5.AFAuxLightEF)}")
+
+    focus = camera.get_cam_data_group_focus()
+
+    print("CamDataGroupFocus:")
+    print(f"  FocusMode = {str(focus.FocusMode)}")
+    print(f"  AFLock = {str(focus.AFLock)}")
+    print(f"  FaceEyeAF = {str(focus.FaceEyeAF)}")
+    print(f"  FaceEyeAFStatus = {str(focus.FaceEyeAFStatus)}")
+    print(f"  FocusArea = {str(focus.FocusArea)}")
+    print(f"  OnePointSelection = {str(focus.OnePointSelection)}")
+    print(f"  Distance Measurement Frame size = {str(focus.DMFSize)}")
+    print(f"  Distance Measurement Frame position = {str(focus.DMFPos)}")
+    print(f"  Distance Measurement Frame detection status = {str(focus.DMFDetection)}")
+    print(f"  Pre AF / Constant AF = {str(focus.PreConstAF)}")
+    print(f"  Focus Limit = {str(focus.FocusLimit)}")

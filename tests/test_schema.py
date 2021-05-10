@@ -1,5 +1,4 @@
 import unittest
-from construct import Container
 from sigma_ptpy.enum import (
     DirectoryType,
     DriveMode, SpecialMode, ExposureMode, AEMeteringMode, FlashMode, FlashSetting,
@@ -13,8 +12,88 @@ from sigma_ptpy.enum import (
 from sigma_ptpy.schema import (
     _CamDataGroup1, _CamDataGroup2, _CamDataGroup3, _CamDataGroup4, _CamDataGroup5,
     _DirectoryEntryArray, _CamCaptStatus, _PictFileInfo2,
-    _decode_directory_entry
+    _DirectoryEntrySchema
 )
+
+
+class Test_DirectoryEntrySchema(unittest.TestCase):
+    this = _DirectoryEntrySchema()
+
+    def test_decode_UInt8(self):
+        actual = self.this._decode(
+            b"\x14\x00\x00\x00"
+            b"\x01\x00\x00\x00"
+            b"\x01\x00\x01\x00\x01\x00\x00\x00\x9c\x00\x00\x00")
+        expected = [(1, [0x9c])]
+        self.assertEqual(actual, expected)
+
+        actual = self.this._decode(
+            b"\x1c\x00\x00\x00"
+            b"\x01\x00\x00\x00"
+            b"\x01\x00\x01\x00\x05\x00\x00\x00\x14\x00\x00\x00"
+            b"\x1c\x2c\x3c\x4c\x5c\x00\x00\x00")
+        expected = [(1, [0x1c, 0x2c, 0x3c, 0x4c, 0x5c])]
+        self.assertEqual(actual, expected)
+
+    def test_decode_String(self):
+        actual = self.this._decode(
+            b"\x14\x00\x00\x00"
+            b"\x01\x00\x00\x00"
+            b"\x01\x00\x02\x00\x04\x00\x00\x00V82\x00")
+        expected = [(1, "V82")]
+        self.assertEqual(actual, expected)
+
+        actual = self.this._decode(
+            b"\x20\x00\x00\x00"
+            b"\x01\x00\x00\x00"
+            b"\x01\x00\x02\x00\x09\x00\x00\x00\x14\x00\x00\x00"
+            b"SIGMA fp\x00\x00\x00\x00")
+        expected = [(1, "SIGMA fp")]
+        self.assertEqual(actual, expected)
+
+    def test_encode_UInt8(self):
+        arg = [
+            (1, DirectoryType.UInt8, 0x9c)
+        ]
+        actual = self.this._encode(arg)
+        expected = \
+            b"\x14\x00\x00\x00" \
+            b"\x01\x00\x00\x00" \
+            b"\x01\x00\x01\x00\x01\x00\x00\x00\x9c\x00\x00\x00"
+        self.assertEqual(actual, expected)
+
+        arg = [
+            (1, DirectoryType.UInt8, [0x1c, 0x2c, 0x3c, 0x4c, 0x5c])
+        ]
+        actual = self.this._encode(arg)
+        expected = \
+            b"\x1c\x00\x00\x00" \
+            b"\x01\x00\x00\x00" \
+            b"\x01\x00\x01\x00\x05\x00\x00\x00\x14\x00\x00\x00" \
+            b"\x1c\x2c\x3c\x4c\x5c\x00\x00\x00"
+        self.assertEqual(actual, expected)
+
+    def test_encode_String(self):
+        arg = [
+            (1, DirectoryType.String, "V82")
+        ]
+        actual = self.this._encode(arg)
+        expected = \
+            b"\x14\x00\x00\x00" \
+            b"\x01\x00\x00\x00" \
+            b"\x01\x00\x02\x00\x04\x00\x00\x00V82\x00"
+        self.assertEqual(actual, expected)
+
+        arg = [
+            (1, DirectoryType.String, "SIGMA fp")
+        ]
+        actual = self.this._encode(arg)
+        expected = \
+            b"\x20\x00\x00\x00" \
+            b"\x01\x00\x00\x00" \
+            b"\x01\x00\x02\x00\x09\x00\x00\x00\x14\x00\x00\x00" \
+            b"SIGMA fp\x00\x00\x00\x00"
+        self.assertEqual(actual, expected)
 
 
 class Test_CamDataGroup1(unittest.TestCase):
@@ -302,65 +381,65 @@ class Test_DirectoryEntryArray(unittest.TestCase):
         self.assertEqual(res.Entries[9].Value, b'\x00\x00\x00\x00')
 
 
-class Test__decode_directory_entries(unittest.TestCase):
-    def test_UInt8(self):
-        actual = _decode_directory_entry(Container(
-            Type=DirectoryType.UInt8,
-            Count=1,
-            Value=b'\x03\x00\x00\x00'
-        ), None)
-        self.assertEqual(actual, [3])
+# class Test__decode_directory_entries(unittest.TestCase):
+#     def test_UInt8(self):
+#         actual = _decode_directory_entry(Container(
+#             Type=DirectoryType.UInt8,
+#             Count=1,
+#             Value=b'\x03\x00\x00\x00'
+#         ), None)
+#         self.assertEqual(actual, [3])
 
-        actual = _decode_directory_entry(Container(
-            Type=DirectoryType.UInt8,
-            Count=5,
-            Value=b'\x01\x00\x00\x00'
-        ), b"\x00\x01\x02\03\x04\x05")
-        self.assertEqual(actual, [1, 2, 3, 4, 5])
+#         actual = _decode_directory_entry(Container(
+#             Type=DirectoryType.UInt8,
+#             Count=5,
+#             Value=b'\x01\x00\x00\x00'
+#         ), b"\x00\x01\x02\03\x04\x05")
+#         self.assertEqual(actual, [1, 2, 3, 4, 5])
 
-    def test_UInt16(self):
-        actual = _decode_directory_entry(Container(
-            Type=DirectoryType.UInt16,
-            Count=1,
-            Value=b'\x03\x01\x00\x00'
-        ), None)
-        self.assertEqual(actual, [0x0103])
+#     def test_UInt16(self):
+#         actual = _decode_directory_entry(Container(
+#             Type=DirectoryType.UInt16,
+#             Count=1,
+#             Value=b'\x03\x01\x00\x00'
+#         ), None)
+#         self.assertEqual(actual, [0x0103])
 
-        actual = _decode_directory_entry(Container(
-            Type=DirectoryType.UInt16,
-            Count=3,
-            Value=b'\x01\x00\x00\x00'
-        ), b"\x00\x01\x02\03\x04\x05\x06")
-        self.assertEqual(actual, [0x0201, 0x0403, 0x0605])
+#         actual = _decode_directory_entry(Container(
+#             Type=DirectoryType.UInt16,
+#             Count=3,
+#             Value=b'\x01\x00\x00\x00'
+#         ), b"\x00\x01\x02\03\x04\x05\x06")
+#         self.assertEqual(actual, [0x0201, 0x0403, 0x0605])
 
-    def test_Float32(self):
-        actual = _decode_directory_entry(Container(
-            Type=DirectoryType.Float32,
-            Count=1,
-            Value=b"\x52\xb8\x9e\x3f"
-        ), None)
-        self.assertEqual(len(actual), 1)
-        self.assertAlmostEqual(actual[0], 1.2400000095367432)
+#     def test_Float32(self):
+#         actual = _decode_directory_entry(Container(
+#             Type=DirectoryType.Float32,
+#             Count=1,
+#             Value=b"\x52\xb8\x9e\x3f"
+#         ), None)
+#         self.assertEqual(len(actual), 1)
+#         self.assertAlmostEqual(actual[0], 1.2400000095367432)
 
-    def test_String(self):
-        actual = _decode_directory_entry(Container(
-            Type=DirectoryType.String,
-            Count=4,
-            Value=b"\x56\x38\x32\x00"
-        ), None)
-        self.assertEqual(actual, "V82")
+#     def test_String(self):
+#         actual = _decode_directory_entry(Container(
+#             Type=DirectoryType.String,
+#             Count=4,
+#             Value=b"\x56\x38\x32\x00"
+#         ), None)
+#         self.assertEqual(actual, "V82")
 
-        rawdata = \
-            b"\x4a\x00\x00\x00\x04\x00\x00\x00\x01\x00\x02\x00\x09\x00\x00\x00\x3c\x00\x00\x00\x02" \
-            b"\x00\x02\x00\x09\x00\x00\x00\x45\x00\x00\x00\x03\x00\x02\x00\x04\x00\x00\x00\x56\x38" \
-            b"\x32\x00\x05\x00\x0b\x00\x01\x00\x00\x00\x52\xb8\x9e\x3f\x00\x00\x00\x00\x53\x49\x47" \
-            b"\x4d\x41\x20\x66\x70\x00\x39\x31\x34\x30\x32\x30\x38\x31\x00\xa9"
-        actual = _decode_directory_entry(Container(
-            Type=DirectoryType.String,
-            Count=9,
-            Value=b"\x3c\x00\x00\x00"
-        ), rawdata)
-        self.assertEqual(actual, "SIGMA fp")
+#         rawdata = \
+#             b"\x4a\x00\x00\x00\x04\x00\x00\x00\x01\x00\x02\x00\x09\x00\x00\x00\x3c\x00\x00\x00\x02" \
+#             b"\x00\x02\x00\x09\x00\x00\x00\x45\x00\x00\x00\x03\x00\x02\x00\x04\x00\x00\x00\x56\x38" \
+#             b"\x32\x00\x05\x00\x0b\x00\x01\x00\x00\x00\x52\xb8\x9e\x3f\x00\x00\x00\x00\x53\x49\x47" \
+#             b"\x4d\x41\x20\x66\x70\x00\x39\x31\x34\x30\x32\x30\x38\x31\x00\xa9"
+#         actual = _decode_directory_entry(Container(
+#             Type=DirectoryType.String,
+#             Count=9,
+#             Value=b"\x3c\x00\x00\x00"
+#         ), rawdata)
+#         self.assertEqual(actual, "SIGMA fp")
 
 
 class Test_CamCaptStatus(unittest.TestCase):

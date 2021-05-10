@@ -2,7 +2,7 @@
 
 import struct
 from construct import (
-    Adapter, Bytes, FlagsEnum,
+    Adapter, Bytes, Container, FlagsEnum,
     Int16ub, Int16ul, Int32ul, Int8un,
     Pass, Struct, If, String, CString, GreedyBytes, GreedyRange, Mapping
 )
@@ -15,7 +15,9 @@ from .enum import (
     DCCropMode, LVMagnifyRatio, HighISOExt, ContShootSpeed, HDR,
     DNGQuality, LOCDistortion, LOCChromaticAbberation, LOCDiffraction,
     LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab,
-    AspectRatio, ToneEffect, AFAuxLightEF
+    AspectRatio, ToneEffect, AFAuxLightEF,
+    FocusMode, AFLock, FaceEyeAF, FaceEyeAFStatus, FocusArea,
+    OnePointSelection, PreConstAF, FocusLimit
 )
 
 
@@ -302,6 +304,72 @@ _BigPartialPictFile = Struct(
     'PartialData' / GreedyBytes
 )
 
+
+def _decode_int_array(b, size, signed):
+    return [int.from_bytes(b[i:i + size], byteorder="little", signed=signed) for i in range(0, len(b), size)]
+
+
+def _decode_float_array(b, size, fmt):
+    count = int(len(b) / size)
+    return list(struct.unpack("<" + fmt * count, b))
+
+
+def _decode_rational_array(b, signed):
+    return [(int.from_bytes(b[i:i + 4], byteorder="little", signed=signed),
+             int.from_bytes(b[i + 4:i + 8], byteorder="little", signed=signed)) for i in range(0, len(b), 8)]
+
+
+def _encode_rational(v, signed=None):
+    return \
+        v[0].to_bytes(4, byteorder="little", signed=signed) \
+        + v[1].to_bytes(4, byteorder="little", signed=signed)
+
+
+_sizes = {
+    DirectoryType.UInt8: 1,
+    DirectoryType.Any8: 1,
+    DirectoryType.Int8: 1,
+    DirectoryType.UInt16: 2,
+    DirectoryType.Int16: 2,
+    DirectoryType.UInt32: 4,
+    DirectoryType.Int32: 4,
+    DirectoryType.Float32: 4,
+    DirectoryType.Float64: 8,
+    DirectoryType.URational: 8,
+    DirectoryType.Rational: 8,
+    DirectoryType.String: 1,
+}
+
+_decoders = {
+    DirectoryType.UInt8: lambda b: _decode_int_array(b, 1, False),
+    DirectoryType.Any8: lambda b: _decode_int_array(b, 1, False),
+    DirectoryType.Int8: lambda b: _decode_int_array(b, 1, True),
+    DirectoryType.UInt16: lambda b: _decode_int_array(b, 2, False),
+    DirectoryType.Int16: lambda b: _decode_int_array(b, 2, True),
+    DirectoryType.UInt32: lambda b: _decode_int_array(b, 4, False),
+    DirectoryType.Int32: lambda b: _decode_int_array(b, 4, True),
+    DirectoryType.Float32: lambda b: _decode_float_array(b, 4, "f"),
+    DirectoryType.Float64: lambda b: _decode_float_array(b, 8, "d"),
+    DirectoryType.URational: lambda b: _decode_rational_array(b, False),
+    DirectoryType.Rational: lambda b: _decode_rational_array(b, True),
+    DirectoryType.String: lambda b: b[0:-1].decode("ascii"),
+}
+
+_encoders = {
+    DirectoryType.UInt8: lambda v: v.to_bytes(1, byteorder="little", signed=False),
+    DirectoryType.Any8: lambda v: v.to_bytes(1, byteorder="little", signed=False),
+    DirectoryType.Int8: lambda v: v.to_bytes(1, byteorder="little", signed=True),
+    DirectoryType.UInt16: lambda v: v.to_bytes(2, byteorder="little", signed=False),
+    DirectoryType.Int16: lambda v: v.to_bytes(2, byteorder="little", signed=True),
+    DirectoryType.UInt32: lambda v: v.to_bytes(4, byteorder="little", signed=False),
+    DirectoryType.Int32: lambda v: v.to_bytes(4, byteorder="little", signed=True),
+    DirectoryType.Float32: lambda v: struct.pack("<f", v),
+    DirectoryType.Float64: lambda v: struct.pack("<d", v),
+    DirectoryType.URational: lambda v: _encode_rational(v, signed=False),
+    DirectoryType.Rational: lambda v: _encode_rational(v, signed=True),
+    DirectoryType.String: lambda v: v.encode("ascii") + b"\x00"
+}
+
 _DirectoryEntry = Struct(
     'Tag' / Int16ul,  # Tag. Defines the individual ID for each instruction.
     'Type' / _Enum(Int16ul, DirectoryType),  # Directory type
@@ -318,47 +386,193 @@ _DirectoryEntryArray = Struct(
 )
 
 
-def _decode_int(b, signed=True):
-    return int.from_bytes(b, byteorder="little", signed=signed)
+class _DirectoryEntrySchema(object):
+    def _decode(self, rawdata):
+        dirarray = _DirectoryEntryArray.parse(rawdata)
+        real_directory_count = min(len(dirarray.Entries), dirarray.DirectoryCount)
+
+        pairs = list()
+        for entry in dirarray.Entries[0:real_directory_count]:
+            size = _sizes[entry.Type]
+            n = entry.Count * size
+            if n <= 4:
+                payload = entry.Value[0:n]
+            else:
+                i = int.from_bytes(entry.Value, byteorder="little", signed=False)
+                payload = rawdata[i:i + n]
+
+            val = _decoders[entry.Type](payload)
+            pairs.append((entry.Tag, val))
+
+        return pairs
+
+    def _encode(self, triples):
+        header_size = 8
+        index_section_size = header_size + len(triples) * _DirectoryEntry.sizeof()
+        index_section = []
+        data_section = b""
+
+        for tag, type_, val in triples:
+            # Converts a tag from EnumClass to int
+            if type(tag) is not int:
+                tag = tag.value
+            # Converts a value into bytes
+            if type(val) is list:
+                count = len(val)
+                payload = b"".join(map(_encoders[type_], val))
+            elif type(val) is str:
+                payload = _encoders[type_](val)
+                count = len(payload)
+            else:
+                count = 1
+                payload = _encoders[type_](val)
+            # Adds a padding for 4-byte alignment
+            if len(payload) % 4 != 0:
+                payload += b"\x00" * (4 - len(payload) % 4)
+            # Appends a new index into index_section
+            if len(payload) <= 4:
+                index_section.append(Container(Tag=tag, Type=type_.value, Count=count, Value=payload))
+            else:
+                offset = (index_section_size + len(data_section)).to_bytes(4, byteorder="little", signed=False)
+                data_section += payload
+                index_section.append(Container(Tag=tag, Type=type_.value, Count=count, Value=offset))
+
+        array = Container(
+            DataLength=index_section_size + len(data_section),
+            DirectoryCount=len(index_section),
+            Entries=index_section,
+        )
+        return _DirectoryEntryArray.build(array) + data_section
 
 
-def _extract_payload(src, rawdata, size):
-    n = src.Count * size
-    if n <= 4:
-        return src.Value[0:n]
-    else:
-        i = _decode_int(src.Value)
-        return rawdata[i:i+n]
+class ApiConfig(_DirectoryEntrySchema):
+    """SIGMA API information.
+
+    Attributes:
+        CameraModel (str): The model name of a camera (read-only).
+        SerialNumber (str): The serial number of a camera (read-only).
+        FirmwareVersion (str): The firmware version of a camera (read-only).
+        CommunicationVersion (float): The communication version of a camera (read-only)."""
+
+    def __init__(self):
+        self.CameraModel = None
+        self.SerialNumber = None
+        self.FirmwareVersion = None
+        self.CommunicationVersion = None
+
+    def __str__(self):
+        return \
+            f"ApiConfig(CameraModel={str(self.CameraModel)}, SerialNumber={str(self.SerialNumber)}, " \
+            f"FirmwareVersion={str(self.FirmwareVersion)}, CommunicationVersion={str(self.CommunicationVersion)})"
+
+    def decode(self, rawdata):
+        for tag, val in self._decode(rawdata):
+            if tag == 1:
+                self.CameraModel = val
+            elif tag == 2:
+                self.SerialNumber = val
+            elif tag == 3:
+                self.FirmwareVersion = val
+            elif tag == 5:
+                self.CommunicationVersion = val[0]
 
 
-def _decode_int_array(src, rawdata, size, signed):
-    b = _extract_payload(src, rawdata, size)
-    return [_decode_int(b[i:i+size], signed=signed) for i in range(0, len(b), size)]
+class CamDataGroupFocus(_DirectoryEntrySchema):
+    """Focus-related information.
 
+    Attributes:
+        FocusMode (sigma_ptpy.enum.FocusMode): Setting value of Focus mode.
+        AFLock (sigma_ptpy.enum.AFLock): AF is locked, or not.
+        FaceEyeAF (sigma_ptpy.enum.FaceEyeAF): Setting value of Face / Eye Priority AF.
+        FaceEyeAFStatus (sigma_ptpy.enum.FaceEyeAFStatus): Face / Eye detection status (read-only).
+        FocusArea (sigma_ptpy.enum.FocusArea): Setting value of focus area.
+        OnePointSelection (sigma_ptpy.enum.OnePointSelection): Setting value when the focus area is set to 1-point selection.
+        DMFSize (int): Size setting of distance measurement frame.
+        DMFPos (list): Record the user setting value of the distance measurement frame in the array format in
+            the following order. Vertical and horizontal coordinates of gravity. The frame size is determined
+            for each mode, therefore, set only the position according to the position of the CanSetInfo5v
+            focus area coordinate system.
+        DMFDetection (list): Face detection frame or distance measurement frame information used for focus
+            judgment (read-only). For one distance measurement frame, record items in the array format in the
+            following order.
+            Vertical and horizontal coordinates of gravity, vertical width, horizontal width. If there are
+            multiple distance measurement frames, connect and arrange items by the number of frames in the
+            format above.
+        PreConstAF (sigma_ptpy.enum.PreConstAF): For a still image, specify the Pre-AF setting value.
+            For a movie, specify the Constant AF setting value.
+        FocusLimit (sigma_ptpy.enum.FocusLimit): Focus limit setting value."""
 
-def _decode_float_array(src, rawdata, size, fmt):
-    b = _extract_payload(src, rawdata, size)
-    return list(struct.unpack("<" + fmt * src.Count, b))
+    def __init__(self, FocusMode=None, AFLock=None, FaceEyeAF=None, FocusArea=None,
+                 OnePointSelection=None, DMFSize=None, DMFPos=None,
+                 PreConstAF=None, FocusLimit=None):
+        self.FocusMode = FocusMode
+        self.AFLock = AFLock
+        self.FaceEyeAF = FaceEyeAF
+        self.FaceEyeAFStatus = None
+        self.FocusArea = FocusArea
+        self.OnePointSelection = OnePointSelection
+        self.DMFSize = DMFSize
+        self.DMFPos = DMFPos
+        self.DMFDetection = None
+        self.PreConstAF = PreConstAF
+        self.FocusLimit = FocusLimit
 
+    def __str__(self):
+        return \
+            f"CamDataGroupFocus(FocusMode={str(self.FocusMode)}, AFLock={str(self.AFLock)}, " \
+            f"FaceEyeAF={str(self.FaceEyeAF)}, FaceEyeAFStatus={str(self.FaceEyeAFStatus)}, " \
+            f"FocusArea={str(self.FocusArea)}, OnePointSelection={str(self.OnePointSelection)}, " \
+            f"DMFSize={str(self.DMFSize)}, DMFPos={str(self.DMFPos)}, " \
+            f"DMFDetection={str(self.DMFDetection)}, PreConstAF={str(self.PreConstAF)}, " \
+            f"FocusLimit={str(self.FocusLimit)})"
 
-def _decode_rational_array(src, rawdata, signed):
-    b = _extract_payload(src, rawdata, 8)
-    return [(_decode_int(b[i:i+4], signed=signed), _decode_int(b[i+4:i+8], signed=signed)) for i in range(0, len(b), 8)]
+    def encode(self):
+        data = list()
 
+        if self.FocusMode is not None:
+            data.append((1, DirectoryType.UInt8, self.FocusMode.value))
+        if self.AFLock is not None:
+            data.append((2, DirectoryType.UInt8, self.AFLock.value))
+        if self.FaceEyeAF is not None:
+            data.append((3, DirectoryType.UInt8, self.FaceEyeAF.value))
+        if self.FocusArea is not None:
+            data.append((10, DirectoryType.UInt8, self.FaceEyFocusAreaeAF.value))
+        if self.FocusArea is not None:
+            data.append((10, DirectoryType.UInt8, self.FocusArea.value))
+        if self.OnePointSelection is not None:
+            data.append((11, DirectoryType.UInt8, self.OnePointSelection.value))
+        if self.DMFSize is not None:
+            data.append((12, DirectoryType.UInt8, self.DMFSize.value))
+        if self.DMFPos is not None:
+            data.append((13, DirectoryType.UInt8, self.DMFPos.value))
+        if self.PreConstAF is not None:
+            data.append((51, DirectoryType.UInt8, self.PreConstAF.value))
+        if self.FocusLimit is not None:
+            data.append((52, DirectoryType.UInt8, self.FocusLimit.value))
 
-def _decode_directory_entry(src, rawdata):
-    switch_ = {
-        DirectoryType.UInt8: lambda: _decode_int_array(src, rawdata, 1, False),
-        DirectoryType.Any8: lambda: _decode_int_array(src, rawdata, 1, False),
-        DirectoryType.Int8: lambda: _decode_int_array(src, rawdata, 1, True),
-        DirectoryType.UInt16: lambda: _decode_int_array(src, rawdata, 2, False),
-        DirectoryType.Int16: lambda: _decode_int_array(src, rawdata, 2, True),
-        DirectoryType.UInt32: lambda: _decode_int_array(src, rawdata, 4, False),
-        DirectoryType.Int32: lambda: _decode_int_array(src, rawdata, 4, True),
-        DirectoryType.Float32: lambda: _decode_float_array(src, rawdata, 4, "f"),
-        DirectoryType.Float64: lambda: _decode_float_array(src, rawdata, 8, "d"),
-        DirectoryType.URational: lambda: _decode_rational_array(src, rawdata, False),
-        DirectoryType.Rational: lambda: _decode_rational_array(src, rawdata, True),
-        DirectoryType.String: lambda: _extract_payload(src, rawdata, 1)[0:-1].decode("ascii"),
-    }
-    return switch_[src.Type]()
+        return self._encode(data)
+
+    def decode(self, rawdata):
+        for tag, val in self._decode(rawdata):
+            if tag == 1:
+                self.FocusMode = FocusMode(val[0])
+            elif tag == 2:
+                self.AFLock = AFLock(val[0])
+            elif tag == 3:
+                self.FaceEyeAF = FaceEyeAF(val[0])
+            elif tag == 4:
+                self.FaceEyeAFStatus = FaceEyeAFStatus(val[0])
+            elif tag == 10:
+                self.FocusArea = FocusArea(val[0])
+            elif tag == 11:
+                self.OnePointSelection = OnePointSelection(val[0])
+            elif tag == 12:
+                self.DMFSize = val[0]
+            elif tag == 13:
+                self.DMFPos = val
+            elif tag == 14:
+                self.DMFDetection = val
+            elif tag == 51:
+                self.PreConstAF = PreConstAF(val[0])
+            elif tag == 52:
+                self.FocusLimit = FocusLimit(val[0])
