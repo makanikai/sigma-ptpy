@@ -197,6 +197,18 @@
 </pre></div>
 </div>
 <dl class="py method">
+<dt class="sig sig-object py" id="sigma_ptpy.sigma_ptpy.SigmaPTPy.clear_image_db_single">
+<span class="sig-name descname"><span class="pre">clear_image_db_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.sigma_ptpy.SigmaPTPy.clear_image_db_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>This instruction requests to clear the shooting result of the CaptStatus database in the camera.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sigma_ptpy.sigma_ptpy.SigmaPTPy.close_application">
+<span class="sig-name descname"><span class="pre">close_application</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.sigma_ptpy.SigmaPTPy.close_application" title="Permalink to this definition">¶</a></dt>
+<dd><p>This instruction informs the camera that the session is closed when the application exits.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sigma_ptpy.sigma_ptpy.SigmaPTPy.config_api">
 <span class="sig-name descname"><span class="pre">config_api</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.sigma_ptpy.SigmaPTPy.config_api" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the first instruction issued to the camera by the application that uses API.</p>
@@ -241,14 +253,17 @@ The data to be handled is based on the IFD structure.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_capt_status">
-<span class="sig-name descname"><span class="pre">get_cam_capt_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_capt_status" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_cam_capt_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_capt_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>This instruction acquires the shooting result from the camera.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>CamCaptStatus object.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image_id</strong> (<em>int</em>) – the image ID to obtain a status.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#sigma_ptpy.schema.CamCaptStatus" title="sigma_ptpy.schema.CamCaptStatus">sigma_ptpy.schema.CamCaptStatus</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CamCaptStatus object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sigma_ptpy.schema.CamCaptStatus" title="sigma_ptpy.schema.CamCaptStatus">sigma_ptpy.schema.CamCaptStatus</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -3255,6 +3270,18 @@ For a movie, specify the Constant AF setting value.</p>
 </pre></div>
 </div>
 <dl class="py method">
+<dt class="sig sig-object py" id="sigma_ptpy.SigmaPTPy.clear_image_db_single">
+<span class="sig-name descname"><span class="pre">clear_image_db_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.SigmaPTPy.clear_image_db_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>This instruction requests to clear the shooting result of the CaptStatus database in the camera.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sigma_ptpy.SigmaPTPy.close_application">
+<span class="sig-name descname"><span class="pre">close_application</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.SigmaPTPy.close_application" title="Permalink to this definition">¶</a></dt>
+<dd><p>This instruction informs the camera that the session is closed when the application exits.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sigma_ptpy.SigmaPTPy.config_api">
 <span class="sig-name descname"><span class="pre">config_api</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.SigmaPTPy.config_api" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the first instruction issued to the camera by the application that uses API.</p>
@@ -3299,14 +3326,17 @@ The data to be handled is based on the IFD structure.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sigma_ptpy.SigmaPTPy.get_cam_capt_status">
-<span class="sig-name descname"><span class="pre">get_cam_capt_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.SigmaPTPy.get_cam_capt_status" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_cam_capt_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.SigmaPTPy.get_cam_capt_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>This instruction acquires the shooting result from the camera.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>CamCaptStatus object.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image_id</strong> (<em>int</em>) – the image ID to obtain a status.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#sigma_ptpy.schema.CamCaptStatus" title="sigma_ptpy.schema.CamCaptStatus">sigma_ptpy.schema.CamCaptStatus</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CamCaptStatus object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sigma_ptpy.schema.CamCaptStatus" title="sigma_ptpy.schema.CamCaptStatus">sigma_ptpy.schema.CamCaptStatus</a></p>
 </dd>
 </dl>
 </dd></dl>
