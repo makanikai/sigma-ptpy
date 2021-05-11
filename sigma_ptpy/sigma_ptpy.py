@@ -1,4 +1,5 @@
 import logging
+import usb.core
 from construct import Container
 from ptpy import USB
 from .schema import (
@@ -35,7 +36,11 @@ class SigmaPTPy(SigmaPTP, USB):
 
     def __init__(self, *args, **kwargs):
         logger.debug("Init SigmaPTPy")
+        # Override default_time in usb.core
+        default_timeout = usb.core._DEFAULT_TIMEOUT
+        usb.core._DEFAULT_TIMEOUT = 5000
         super(SigmaPTPy, self).__init__(*args, **kwargs)
+        usb.core._DEFAULT_TIMEOUT = default_timeout
 
     def __recv(self, opcode, klass, params=[]):
         ptp = Container(
@@ -77,6 +82,17 @@ class SigmaPTPy(SigmaPTP, USB):
         Returns:
             sigma_ptpy.schema.ApiConfig: the set of values obtained from a camera."""
         return self.__recv('SigmaConfigApi', ApiConfig, params=[0])
+
+    def close_application(self):
+        """This instruction informs the camera that the session is closed when the application exits."""
+        logger.debug("SEND SigmaCloseApplication")
+        payload = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  # This payload is undocumented. What's this?
+        ptp = Container(
+            OperationCode='SigmaCloseApplication',
+            SessionID=self._session,
+            TransactionID=self._transaction,
+            Parameter=[])
+        return self.send(ptp, payload)
 
     def get_cam_data_group1(self):
         """This instruction acquires DataGroup1 status information from the camera.
@@ -167,12 +183,15 @@ class SigmaPTPy(SigmaPTP, USB):
             focus (sigma_ptpy.schema.CamDataGroupFocus): the set of values to be sent."""
         return self.__send('SigmaSetCamDataGroupFocus', CamDataGroupFocus, focus)
 
-    def get_cam_capt_status(self):
+    def get_cam_capt_status(self, image_id):
         """This instruction acquires the shooting result from the camera.
+
+        Args:
+            image_id (int): the image ID to obtain a status.
 
         Returns:
             sigma_ptpy.schema.CamCaptStatus: CamCaptStatus object."""
-        return self.__recv('SigmaGetCamCaptStatus', CamCaptStatus, params=[0x00000000])
+        return self.__recv('SigmaGetCamCaptStatus', CamCaptStatus, params=[image_id])
 
     def get_pict_file_info2(self):
         """This function requests information of the data (image file) that is shot in Camera Control mode.
@@ -204,6 +223,17 @@ class SigmaPTPy(SigmaPTP, USB):
         Args:
             data (sigma_ptpy.schema.SnapCommand): a snap command object."""
         return self.__send('SigmaSnapCommand', SnapCommand, data)
+
+    def clear_image_db_single(self, image_id):
+        """This instruction requests to clear the shooting result of the CaptStatus database in the camera."""
+        logger.debug("SEND SigmaClearImageDBSingle")
+        payload = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  # This payload is undocumented. What's this?
+        ptp = Container(
+            OperationCode='SigmaClearImageDBSingle',
+            SessionID=self._session,
+            TransactionID=self._transaction,
+            Parameter=[image_id])
+        return self.send(ptp, payload)
 
     def get_big_partial_pict_file(self, store_address, start_address, max_length):
         """This function downloads image data (image file) shot by the camera in pieces.
