@@ -13,7 +13,7 @@ from .enum import (
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
     BatteryKind, AFAuxLight, CaptureMode, CaptStatus, DestToSave,
     DCCropMode, LVMagnifyRatio, HighISOExt, ContShootSpeed, HDR,
-    DNGQuality, LOCDistortion, LOCChromaticAbberation, LOCDiffraction,
+    DNGQuality, LOCDistortion, LOCChromaticAberration, LOCDiffraction,
     LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab,
     AspectRatio, ToneEffect, AFAuxLightEF,
     FocusMode, AFLock, FaceEyeAF, FaceEyeAFStatus, FocusArea,
@@ -430,7 +430,7 @@ class CamDataGroup4(_StandardSchema):
         'DNGQuality' / _IfDefined('DNGQuality', _Enum(Int8un, DNGQuality)),
         'FillLight' / _IfDefined('FillLight', Int8un),
         'LOCDistortion' / _IfDefined('LOC', _Enum(Int8un, LOCDistortion)),
-        'LOCChromaticAbberation' / _IfDefined('LOC', _Enum(Int8un, LOCChromaticAbberation)),
+        'LOCChromaticAberration' / _IfDefined('LOC', _Enum(Int8un, LOCChromaticAberration)),
         'LOCDiffraction' / _IfDefined('LOC', _Enum(Int8un, LOCDiffraction)),
         'LOCVignetting' / _IfDefined('LOC', _Enum(Int8un, LOCVignetting)),
         'LOCColorShade' / _IfDefined('LOC', _Enum(Int8un, LOCColorShade)),
@@ -443,7 +443,7 @@ class CamDataGroup4(_StandardSchema):
 
     def __init__(self, DCCropMode=None, LVMagnifyRatio=None, HighISOExt=None,
                  ContShootSpeed=None, HDR=None, DNGQuality=None, FillLight=None,
-                 LOCDistortion=None, LOCChromaticAbberation=None, LOCDiffraction=None,
+                 LOCDistortion=None, LOCChromaticAberration=None, LOCDiffraction=None,
                  LOCVignetting=None, LOCColorShade=None, LOCColorShadeAcq=None,
                  EImageStab=None, ShutterSound=None):
         self.DCCropMode = DCCropMode
@@ -454,7 +454,7 @@ class CamDataGroup4(_StandardSchema):
         self.DNGQuality = DNGQuality
         self.FillLight = FillLight
         self.LOCDistortion = LOCDistortion
-        self.LOCChromaticAbberation = LOCChromaticAbberation
+        self.LOCChromaticAberration = LOCChromaticAberration
         self.LOCDiffraction = LOCDiffraction
         self.LOCVignetting = LOCVignetting
         self.LOCColorShade = LOCColorShade
@@ -467,13 +467,13 @@ class CamDataGroup4(_StandardSchema):
             f"CamDataGroup4(DCCropMode={str(self.DCCropMode)}, LVMagnifyRatio={str(self.LVMagnifyRatio)}, " \
             f"HighISOExt={str(self.HighISOExt)}, ContShootSpeed={str(self.ContShootSpeed)}, " \
             f"HDR={str(self.HDR)}, DNGQuality={str(self.DNGQuality)}, FillLight={str(self.FillLight)}, " \
-            f"LOCDistortion={str(self.LOCDistortion)}, LOCChromaticAbberation={str(self.LOCChromaticAbberation)}, " \
+            f"LOCDistortion={str(self.LOCDistortion)}, LOCChromaticAberration={str(self.LOCChromaticAberration)}, " \
             f"LOCDiffraction={str(self.LOCDiffraction)}, LOCVignetting={str(self.LOCVignetting)}, " \
             f"LOCColorShade={str(self.LOCColorShade)}, LOCColorShadeAcq={str(self.LOCColorShadeAcq)}, " \
             f"EImageStab={str(self.EImageStab)}, ShutterSound={str(self.ShutterSound)})"
 
     def encode(self):
-        LOC = LOCDistortion is not None or LOCChromaticAbberation is not None or LOCDiffraction is not None \
+        LOC = LOCDistortion is not None or LOCChromaticAberration is not None or LOCDiffraction is not None \
             or LOCVignetting is not None or LOCColorShade is not None or LOCColorShadeAcq is not None
         return self.__Schema.build(Container(
             FieldPresent=Container(
@@ -492,7 +492,7 @@ class CamDataGroup4(_StandardSchema):
             DCCropMode=self.DCCropMode, LVMagnifyRatio=self.LVMagnifyRatio, HighISOExt=self.HighISOExt,
             ContShootSpeed=self.ContShootSpeed, HDR=self.HDR, DNGQuality=self.DNGQuality,
             FillLight=self.FillLight, EImageStab=self.EImageStab, ShutterSound=self.ShutterSound,
-            LOCDistortion=self.LOCDistortion or 0, LOCChromaticAbberation=self.LOCChromaticAbberation or 0,
+            LOCDistortion=self.LOCDistortion or 0, LOCChromaticAberration=self.LOCChromaticAberration or 0,
             LOCDiffraction=self.LOCDiffraction or 0, LOCVignetting=self.LOCVignetting or 0,
             LOCColorShade=self.LOCColorShade or 0, LOCColorShadeAcq=self.LOCColorShadeAcq or 0,
             _Reserved0=None, _Reserved1=None, _Reserved2=None, _Reserved3=None, _Reserved4=None, _Reserved5=None))
@@ -501,7 +501,7 @@ class CamDataGroup4(_StandardSchema):
         container = self._decode(self.__Schema, rawdata)
         if container.FieldPresent.LOC:
             self.LOCDistortion = container.LOCDistortion
-            self.LOCChromaticAbberation = container.LOCChromaticAbberation
+            self.LOCChromaticAberration = container.LOCChromaticAberration
             self.LOCDiffraction = container.LOCDiffraction
             self.LOCVignetting = container.LOCVignetting
             self.LOCColorShade = container.LOCColorShade
@@ -996,3 +996,191 @@ class CamDataGroupFocus(_DirectoryEntrySchema):
                 self.PreConstAF = PreConstAF(val[0])
             elif tag == 52:
                 self.FocusLimit = FocusLimit(val[0])
+
+
+def _map_list(f):
+    def g(lst):
+        return [f(x) for x in lst]
+    return g
+
+
+def _bool(x):
+    return x == [1]
+
+
+class CamCanSetInfo5(_DirectoryEntrySchema):
+    def __str__(self):
+        s = ", ".join([f"{k}={str(v)}" for k, v in self.__dict__.items()])
+        return f"CamCanSetInfo5({s})"
+
+    def decode(self, rawdata):
+        field_defs = [
+            (1, "DriveMode", _map_list(lambda x: DriveMode.IntervalTimer if x == 5 else DriveMode(x))),
+            (2, "ContShootSpeed", _map_list(ContShootSpeed)),
+            (3, "IntervalTimerFrame", lambda x: {"InfiniteSetting": x[0] == 1, "FiniteSetting": x[1] == 1}),
+            (4, "IntervalTimerSecond", None),
+            (10, "SFD", None),
+            (11, "ImageQuality", {
+                "2": ImageQuality.DNG,
+                "16": ImageQuality.JPEGFine,
+                "32": ImageQuality.JPEGNormal,
+                "48": ImageQuality.JPEGBasic,
+                "18": ImageQuality.DNGAndJPEG,
+            }),
+            (12, "DNGQuality", _map_list(DNGQuality)),
+            (20, "StillImageResolution", {
+                "1": Resolution.High,
+                "2": Resolution.Medium,
+                "3": Resolution.Low,
+            }),
+            (21, "AspectRatio", _map_list(AspectRatio)),
+            (100, "StillMovieSwitch", None),
+            (110, "AudioRecord", None),
+            (111, "NumOfVoiceChannels", None),
+            (112, "GainAdjustMethod", None),
+            (113, "ManualGainAdjustEV", None),
+            (114, "WindNoiseCanceller", None),
+            (150, "RecordFormat", None),
+            (151, "CinemaDNGImageQuality", None),
+            (152, "MovImageQuality", None),
+            (160, "MovieResolution", None),
+            (161, "FrameRate", None),
+            (162, "Binning", None),
+            (200, "ExposureMode", {
+                "1": ExposureMode.ProgramAuto,
+                "2": ExposureMode.AperturePriority,
+                "3": ExposureMode.ShutterPriority,
+                "4": ExposureMode.Manual,
+                "5": ExposureMode.C1,
+                "6": ExposureMode.C2,
+                "7": ExposureMode.C3,
+            }),
+            (201, "ProgramShiftAvailable", _bool),
+            (210, "FValue", None),
+            (211, "TValue", None),
+            (212, "ShutterSpeed", None),
+            (213, "NonApexShutterSpeed", None),
+            (214, "ShutterAngle", None),
+            (215, "ISOManual", None),
+            (216, "ISOAuto", None),
+            (217, "ExpComp", None),
+            (218, "ExpBracketNum", None),
+            (219, "ExpBracketOrder", None),
+            (220, "ExpBracketAmount", None),
+            (250, "AEMeteringMode", {
+                "1": AEMeteringMode.Evaluative,
+                "2": AEMeteringMode.CenterWeightedAverage,
+                "3": AEMeteringMode.Spot,
+            }),
+            (251, "AELockAvailable", _bool),
+            (252, "Flash", None),
+            (253, "FlashExpComp", None),
+            (300, "CustomBracket", None),
+            (301, "WhiteBalance", {
+                "1": WhiteBalance.Auto,
+                "2": WhiteBalance.LightSource,
+                "3": WhiteBalance.Sunlight,
+                "4": WhiteBalance.Shade,
+                "5": WhiteBalance.Incandescent,
+                "6": WhiteBalance.Fluorescent,
+                "7": WhiteBalance.Flash,
+                "8": WhiteBalance.ColorTemp,
+                "9": WhiteBalance.Custom1,
+                "10": WhiteBalance.Custom2,
+                "11": WhiteBalance.Custom3,
+            }),
+            (302, "WBColorTemp", None),
+            (303, "WBCustomCap", None),
+            (304, "WBAdjustment", None),
+            (305, "WBBracketNum", None),
+            (306, "WBBracketDirection", None),
+            (307, "WBBracketEV", None),
+            (320, "ColorMode", {
+                "1": ColorMode.Normal,
+                "2": ColorMode.Vivid,
+                "3": ColorMode.Neutral,
+                "4": ColorMode.Portrait,
+                "5": ColorMode.Landscape,
+                "6": ColorMode.Cinema,
+                "7": ColorMode.Sunset,
+                "8": ColorMode.Forest,
+                "9": ColorMode.FovClassicBlue,
+                "10": ColorMode.FovClassicYellow,
+                "11": ColorMode.Monochrome,
+            }),
+            (321, "ColorModeContrast", None),
+            (322, "ColorModeSharpness", None),
+            (323, "ColorModeSaturation", None),
+            (323, "MonochromeFilterEffect", None),
+            (324, "MonochromeToneEffect", None),
+            (327, "ColorModeBracketNum", None),
+            (340, "FillLight", None),
+            (341, "FillLightBracketNum", None),
+            (342, "FillLightBracketEV", None),
+            (350, "HDR", {
+                "-1": HDR.Auto,
+                "0": HDR.Off,
+                "1": HDR.PlusMinus1,
+                "2": HDR.PlusMinus2,
+                "3": HDR.PlusMinus3,
+            }),
+            (500, "DCCropMode", {
+                "-1": DCCropMode.Auto,
+                "0": DCCropMode.Off,
+                "1": DCCropMode.On,
+            }),
+            (501, "LOCDistortion", {"-1": LOCDistortion.Auto, "0": LOCDistortion.Off}),
+            (502, "LOCChromaticAberration", {"-1": LOCChromaticAberration.Auto, "0": LOCChromaticAberration.Off}),
+            (503, "LOCDiffraction", {"0": LOCDiffraction.Off, "1": LOCDiffraction.On}),
+            (504, "LOCVignetting", {"-1": LOCVignetting.Auto, "0": LOCVignetting.Off}),
+            (505, "LOCColorShade", {
+                "-1": LOCColorShade.Auto,
+                "0": LOCColorShade.Off,
+                "1": LOCColorShade.No1,
+                "2": LOCColorShade.No2,
+                "3": LOCColorShade.No3,
+                "4": LOCColorShade.No4,
+                "5": LOCColorShade.No5,
+                "6": LOCColorShade.No6,
+                "7": LOCColorShade.No7,
+                "8": LOCColorShade.No8,
+                "9": LOCColorShade.No9,
+                "10": LOCColorShade.No10,
+            }),
+            (506, "LOCColorShadeCustomCapAvailable", _bool),
+            (600, "FocusMode", _map_list(FocusMode)),
+            (601, "AFLockAvailable", _bool),
+            (602, "FaceEyeAF", _map_list(FaceEyeAF)),
+            (610, "FocusArea", _map_list(FocusArea)),
+            (611, "OnePointSelection", _map_list(OnePointSelection)),
+            (612, "FocusAreaOverallArea", lambda x: {'Height': x[0], 'Width': x[1]}),
+            (613, "FocusAreaValidArea", lambda x: {'Top': x[0], 'Bottom': x[1], 'Left': x[2], 'Right': x[3]}),
+            (614, "NumOfDMFSizes", lambda x: x[0]),
+            (615, "DMFSize", lambda x: [(x[i], x[i + 1]) for i in range(0, len(x), 2)]),
+            (616, "DMFMovement", None),
+            (650, "PreConstAF", _map_list(PreConstAF)),
+            (651, "FocusLimit", _map_list(FocusLimit)),
+            (656, "AFSOperation", None),
+            (657, "AFCOperation", None),
+            (700, "LVImageTransferAvailable", _bool),
+            (701, "LVMagnificationRate", None),
+            (702, "FocusPeaking", None),
+            (800, "DateTime", None),
+            (801, "ShutterSound", None),
+            (802, "AFVolume", None),
+            (803, "TimerVolume", None),
+            (810, "EImageStab", {"0": EImageStab.Off, "1": EImageStab.On}),
+        ]
+        response = dict((str(tag), val) for tag, val in self._decode(rawdata))
+        for tag, name, conv in field_defs:
+            tag = str(tag)
+            if tag in response:
+                val = response[tag]
+                if type(conv) is dict:
+                    self.__dict__[name] = [conv[str(v)] if str(v) in conv else v for v in val]
+                elif conv is not None:
+                    self.__dict__[name] = conv(val)
+                else:
+                    self.__dict__[name] = val
+            else:
+                self.__dict__[name] = None

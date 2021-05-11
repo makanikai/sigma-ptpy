@@ -91,7 +91,7 @@ with camera.session():
     print(f"  ShutterSound = {str(d4.ShutterSound)}")
     print("  LensOpticsCompensation:")
     print(f"    Distortion = {str(d4.LOCDistortion)}")
-    print(f"    Chromatic Abberation = {str(d4.LOCChromaticAbberation)}")
+    print(f"    Chromatic Aberration = {str(d4.LOCChromaticAberration)}")
     print(f"    Diffraction = {str(d4.LOCDiffraction)}")
     print(f"    Vignetting = {str(d4.LOCVignetting)}")
     print(f"    Color Shading = {str(d4.LOCColorShade)}")
