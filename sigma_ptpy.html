@@ -252,6 +252,20 @@ The data to be handled is based on the IFD structure.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_can_set_info5">
+<span class="sig-name descname"><span class="pre">get_cam_can_set_info5</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_can_set_info5" title="Permalink to this definition">¶</a></dt>
+<dd><p>This instruction acquires the setting items, which can be changed through the PC, from the camera.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the set of values obtained from a camera.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sigma_ptpy.schema.CamCanSetInfo5" title="sigma_ptpy.schema.CamCanSetInfo5">sigma_ptpy.schema.CamCanSetInfo5</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_capt_status">
 <span class="sig-name descname"><span class="pre">get_cam_capt_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_capt_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>This instruction acquires the shooting result from the camera.</p>
@@ -1094,6 +1108,11 @@ The data to be handled is based on the IFD structure.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="sigma_ptpy.enum.ColorMode.Monochrome">
+<span class="sig-name descname"><span class="pre">Monochrome</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#sigma_ptpy.enum.ColorMode.Monochrome" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="sigma_ptpy.enum.ColorMode.Neutral">
 <span class="sig-name descname"><span class="pre">Neutral</span></span><em class="property"> <span class="pre">=</span> <span class="pre">5</span></em><a class="headerlink" href="#sigma_ptpy.enum.ColorMode.Neutral" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1126,11 +1145,6 @@ The data to be handled is based on the IFD structure.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sigma_ptpy.enum.ColorMode.Vivid">
 <span class="sig-name descname"><span class="pre">Vivid</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#sigma_ptpy.enum.ColorMode.Vivid" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sigma_ptpy.enum.ColorMode.WhiteAndBlack">
-<span class="sig-name descname"><span class="pre">WhiteAndBlack</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#sigma_ptpy.enum.ColorMode.WhiteAndBlack" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1682,24 +1696,6 @@ The data to be handled is based on the IFD structure.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sigma_ptpy.enum.HDR.EC1">
-<span class="sig-name descname"><span class="pre">EC1</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#sigma_ptpy.enum.HDR.EC1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exposure compensation ±1.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sigma_ptpy.enum.HDR.EC2">
-<span class="sig-name descname"><span class="pre">EC2</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#sigma_ptpy.enum.HDR.EC2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exposure compensation ±3.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sigma_ptpy.enum.HDR.EC3">
-<span class="sig-name descname"><span class="pre">EC3</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#sigma_ptpy.enum.HDR.EC3" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exposure compensation ±4.0</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="sigma_ptpy.enum.HDR.Null">
 <span class="sig-name descname"><span class="pre">Null</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#sigma_ptpy.enum.HDR.Null" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uninitialized</p>
@@ -1709,6 +1705,24 @@ The data to be handled is based on the IFD structure.</p>
 <dt class="sig sig-object py" id="sigma_ptpy.enum.HDR.Off">
 <span class="sig-name descname"><span class="pre">Off</span></span><em class="property"> <span class="pre">=</span> <span class="pre">255</span></em><a class="headerlink" href="#sigma_ptpy.enum.HDR.Off" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sigma_ptpy.enum.HDR.PlusMinus1">
+<span class="sig-name descname"><span class="pre">PlusMinus1</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#sigma_ptpy.enum.HDR.PlusMinus1" title="Permalink to this definition">¶</a></dt>
+<dd><p>±1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sigma_ptpy.enum.HDR.PlusMinus2">
+<span class="sig-name descname"><span class="pre">PlusMinus2</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#sigma_ptpy.enum.HDR.PlusMinus2" title="Permalink to this definition">¶</a></dt>
+<dd><p>±2.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sigma_ptpy.enum.HDR.PlusMinus3">
+<span class="sig-name descname"><span class="pre">PlusMinus3</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#sigma_ptpy.enum.HDR.PlusMinus3" title="Permalink to this definition">¶</a></dt>
+<dd><p>±3.0</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1787,25 +1801,25 @@ The data to be handled is based on the IFD structure.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="sigma_ptpy.enum.LOCChromaticAbberation">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sigma_ptpy.enum.</span></span><span class="sig-name descname"><span class="pre">LOCChromaticAbberation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.enum.LOCChromaticAbberation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sigma_ptpy.enum.LOCChromaticAberration">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sigma_ptpy.enum.</span></span><span class="sig-name descname"><span class="pre">LOCChromaticAberration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.enum.LOCChromaticAberration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
 <p>Lens Optics Compensation Chromatic Abberation</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sigma_ptpy.enum.LOCChromaticAbberation.Auto">
-<span class="sig-name descname"><span class="pre">Auto</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#sigma_ptpy.enum.LOCChromaticAbberation.Auto" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sigma_ptpy.enum.LOCChromaticAberration.Auto">
+<span class="sig-name descname"><span class="pre">Auto</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#sigma_ptpy.enum.LOCChromaticAberration.Auto" title="Permalink to this definition">¶</a></dt>
 <dd><p>AUTO</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sigma_ptpy.enum.LOCChromaticAbberation.Null">
-<span class="sig-name descname"><span class="pre">Null</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#sigma_ptpy.enum.LOCChromaticAbberation.Null" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sigma_ptpy.enum.LOCChromaticAberration.Null">
+<span class="sig-name descname"><span class="pre">Null</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#sigma_ptpy.enum.LOCChromaticAberration.Null" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uninitialized</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sigma_ptpy.enum.LOCChromaticAbberation.Off">
-<span class="sig-name descname"><span class="pre">Off</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#sigma_ptpy.enum.LOCChromaticAbberation.Off" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sigma_ptpy.enum.LOCChromaticAberration.Off">
+<span class="sig-name descname"><span class="pre">Off</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#sigma_ptpy.enum.LOCChromaticAberration.Off" title="Permalink to this definition">¶</a></dt>
 <dd><p>OFF</p>
 </dd></dl>
 
@@ -2325,6 +2339,17 @@ application operation until the time you exit the menu.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="sigma_ptpy.schema.CamCanSetInfo5">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sigma_ptpy.schema.</span></span><span class="sig-name descname"><span class="pre">CamCanSetInfo5</span></span><a class="headerlink" href="#sigma_ptpy.schema.CamCanSetInfo5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sigma_ptpy.schema._DirectoryEntrySchema</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sigma_ptpy.schema.CamCanSetInfo5.decode">
+<span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawdata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.schema.CamCanSetInfo5.decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="sigma_ptpy.schema.CamCaptStatus">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sigma_ptpy.schema.</span></span><span class="sig-name descname"><span class="pre">CamCaptStatus</span></span><a class="headerlink" href="#sigma_ptpy.schema.CamCaptStatus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -2761,7 +2786,7 @@ including the exposure bracket compensation value. (cf. “ExpCompExcludeAB” i
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sigma_ptpy.schema.CamDataGroup4">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sigma_ptpy.schema.</span></span><span class="sig-name descname"><span class="pre">CamDataGroup4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">DCCropMode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LVMagnifyRatio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">HighISOExt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ContShootSpeed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">HDR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DNGQuality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FillLight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCDistortion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCChromaticAbberation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCDiffraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCVignetting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCColorShade</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCColorShadeAcq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EImageStab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ShutterSound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.schema.CamDataGroup4" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sigma_ptpy.schema.</span></span><span class="sig-name descname"><span class="pre">CamDataGroup4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">DCCropMode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LVMagnifyRatio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">HighISOExt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ContShootSpeed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">HDR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DNGQuality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FillLight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCDistortion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCChromaticAberration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCDiffraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCVignetting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCColorShade</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOCColorShadeAcq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EImageStab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ShutterSound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.schema.CamDataGroup4" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sigma_ptpy.schema._StandardSchema</span></code></p>
 <p>DataGroup4 status information.</p>
 <dl class="py attribute">
@@ -2858,7 +2883,7 @@ in 0.1 increments, and enter 10 times the UI display value.</p>
 <dd><p>Lens Optics Compensation - Chromatic Aberration setting value</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>sigma_ptpy.enum.LOCChromaticAberration</p>
+<dd class="field-odd"><p><a class="reference internal" href="#sigma_ptpy.enum.LOCChromaticAberration" title="sigma_ptpy.enum.LOCChromaticAberration">sigma_ptpy.enum.LOCChromaticAberration</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -3320,6 +3345,20 @@ The data to be handled is based on the IFD structure.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#sigma_ptpy.schema.BigPartialPictFile" title="sigma_ptpy.schema.BigPartialPictFile">sigma_ptpy.schema.BigPartialPictFile</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sigma_ptpy.SigmaPTPy.get_cam_can_set_info5">
+<span class="sig-name descname"><span class="pre">get_cam_can_set_info5</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sigma_ptpy.SigmaPTPy.get_cam_can_set_info5" title="Permalink to this definition">¶</a></dt>
+<dd><p>This instruction acquires the setting items, which can be changed through the PC, from the camera.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the set of values obtained from a camera.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sigma_ptpy.schema.CamCanSetInfo5" title="sigma_ptpy.schema.CamCanSetInfo5">sigma_ptpy.schema.CamCanSetInfo5</a></p>
 </dd>
 </dl>
 </dd></dl>

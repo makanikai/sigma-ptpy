@@ -284,7 +284,7 @@
 </li>
         <li><a href="sigma_ptpy.html#sigma_ptpy.enum.ISOAuto.Auto">(sigma_ptpy.enum.ISOAuto attribute)</a>
 </li>
-        <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCChromaticAbberation.Auto">(sigma_ptpy.enum.LOCChromaticAbberation attribute)</a>
+        <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCChromaticAberration.Auto">(sigma_ptpy.enum.LOCChromaticAberration attribute)</a>
 </li>
         <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCColorShade.Auto">(sigma_ptpy.enum.LOCColorShade attribute)</a>
 </li>
@@ -332,6 +332,8 @@
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.ExposureMode.C2">C2 (sigma_ptpy.enum.ExposureMode attribute)</a>
 </li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.ExposureMode.C3">C3 (sigma_ptpy.enum.ExposureMode attribute)</a>
+</li>
+      <li><a href="sigma_ptpy.html#sigma_ptpy.schema.CamCanSetInfo5">CamCanSetInfo5 (class in sigma_ptpy.schema)</a>
 </li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.schema.CamCaptStatus">CamCaptStatus (class in sigma_ptpy.schema)</a>
 </li>
@@ -446,6 +448,8 @@
       <ul>
         <li><a href="sigma_ptpy.html#sigma_ptpy.schema.BigPartialPictFile.decode">(sigma_ptpy.schema.BigPartialPictFile method)</a>
 </li>
+        <li><a href="sigma_ptpy.html#sigma_ptpy.schema.CamCanSetInfo5.decode">(sigma_ptpy.schema.CamCanSetInfo5 method)</a>
+</li>
         <li><a href="sigma_ptpy.html#sigma_ptpy.schema.CamCaptStatus.decode">(sigma_ptpy.schema.CamCaptStatus method)</a>
 </li>
         <li><a href="sigma_ptpy.html#sigma_ptpy.schema.CamDataGroup1.decode">(sigma_ptpy.schema.CamDataGroup1 method)</a>
@@ -507,12 +511,6 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.HDR.EC1">EC1 (sigma_ptpy.enum.HDR attribute)</a>
-</li>
-      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.HDR.EC2">EC2 (sigma_ptpy.enum.HDR attribute)</a>
-</li>
-      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.HDR.EC3">EC3 (sigma_ptpy.enum.HDR attribute)</a>
-</li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.EImageStab">EImageStab (class in sigma_ptpy.enum)</a>
 
       <ul>
@@ -659,6 +657,12 @@
         <li><a href="sigma_ptpy.html#sigma_ptpy.SigmaPTPy.get_big_partial_pict_file">(sigma_ptpy.SigmaPTPy method)</a>
 </li>
       </ul></li>
+      <li><a href="sigma_ptpy.html#sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_can_set_info5">get_cam_can_set_info5() (sigma_ptpy.sigma_ptpy.SigmaPTPy method)</a>
+
+      <ul>
+        <li><a href="sigma_ptpy.html#sigma_ptpy.SigmaPTPy.get_cam_can_set_info5">(sigma_ptpy.SigmaPTPy method)</a>
+</li>
+      </ul></li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_capt_status">get_cam_capt_status() (sigma_ptpy.sigma_ptpy.SigmaPTPy method)</a>
 
       <ul>
@@ -677,14 +681,14 @@
         <li><a href="sigma_ptpy.html#sigma_ptpy.SigmaPTPy.get_cam_data_group2">(sigma_ptpy.SigmaPTPy method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sigma_ptpy.html#sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_data_group3">get_cam_data_group3() (sigma_ptpy.sigma_ptpy.SigmaPTPy method)</a>
 
       <ul>
         <li><a href="sigma_ptpy.html#sigma_ptpy.SigmaPTPy.get_cam_data_group3">(sigma_ptpy.SigmaPTPy method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sigma_ptpy.html#sigma_ptpy.sigma_ptpy.SigmaPTPy.get_cam_data_group4">get_cam_data_group4() (sigma_ptpy.sigma_ptpy.SigmaPTPy method)</a>
 
       <ul>
@@ -829,10 +833,12 @@
 </li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.SpecialMode.LiveView">LiveView (sigma_ptpy.enum.SpecialMode attribute)</a>
 </li>
-      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCChromaticAbberation">LOCChromaticAbberation (class in sigma_ptpy.enum)</a>
+      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCChromaticAberration">LOCChromaticAberration (class in sigma_ptpy.enum)</a>
+
+      <ul>
+        <li><a href="sigma_ptpy.html#sigma_ptpy.schema.CamDataGroup4.LOCChromaticAberration">(sigma_ptpy.schema.CamDataGroup4 attribute)</a>
 </li>
-      <li><a href="sigma_ptpy.html#sigma_ptpy.schema.CamDataGroup4.LOCChromaticAberration">LOCChromaticAberration (sigma_ptpy.schema.CamDataGroup4 attribute)</a>
-</li>
+      </ul></li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCColorShade">LOCColorShade (class in sigma_ptpy.enum)</a>
 
       <ul>
@@ -922,6 +928,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.ColorMode.Monochrome">Monochrome (sigma_ptpy.enum.ColorMode attribute)</a>
+</li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.CaptStatus.MovieGenCompleted">MovieGenCompleted (sigma_ptpy.enum.CaptStatus attribute)</a>
 </li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.FocusArea.MultiAutoFocusPoints">MultiAutoFocusPoints (sigma_ptpy.enum.FocusArea attribute)</a>
@@ -997,7 +1005,7 @@
 </li>
         <li><a href="sigma_ptpy.html#sigma_ptpy.enum.HDR.Null">(sigma_ptpy.enum.HDR attribute)</a>
 </li>
-        <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCChromaticAbberation.Null">(sigma_ptpy.enum.LOCChromaticAbberation attribute)</a>
+        <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCChromaticAberration.Null">(sigma_ptpy.enum.LOCChromaticAberration attribute)</a>
 </li>
         <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCColorShade.Null">(sigma_ptpy.enum.LOCColorShade attribute)</a>
 </li>
@@ -1047,7 +1055,7 @@
 </li>
         <li><a href="sigma_ptpy.html#sigma_ptpy.enum.HighISOExt.Off">(sigma_ptpy.enum.HighISOExt attribute)</a>
 </li>
-        <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCChromaticAbberation.Off">(sigma_ptpy.enum.LOCChromaticAbberation attribute)</a>
+        <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCChromaticAberration.Off">(sigma_ptpy.enum.LOCChromaticAberration attribute)</a>
 </li>
         <li><a href="sigma_ptpy.html#sigma_ptpy.enum.LOCColorShade.Off">(sigma_ptpy.enum.LOCColorShade attribute)</a>
 </li>
@@ -1108,10 +1116,16 @@
 </li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.ProgramShift.Plus">Plus (sigma_ptpy.enum.ProgramShift attribute)</a>
 </li>
-      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.ColorMode.Portrait">Portrait (sigma_ptpy.enum.ColorMode attribute)</a>
+      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.HDR.PlusMinus1">PlusMinus1 (sigma_ptpy.enum.HDR attribute)</a>
+</li>
+      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.HDR.PlusMinus2">PlusMinus2 (sigma_ptpy.enum.HDR attribute)</a>
+</li>
+      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.HDR.PlusMinus3">PlusMinus3 (sigma_ptpy.enum.HDR attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.ColorMode.Portrait">Portrait (sigma_ptpy.enum.ColorMode attribute)</a>
+</li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.PreConstAF">PreConstAF (class in sigma_ptpy.enum)</a>
 
       <ul>
@@ -1392,8 +1406,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sigma_ptpy.html#sigma_ptpy.enum.ColorMode.WhiteAndBlack">WhiteAndBlack (sigma_ptpy.enum.ColorMode attribute)</a>
-</li>
       <li><a href="sigma_ptpy.html#sigma_ptpy.enum.WhiteBalance">WhiteBalance (class in sigma_ptpy.enum)</a>
 
       <ul>
