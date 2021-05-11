@@ -18,13 +18,6 @@ class DirectoryType(IntEnum):
     Float64 = 0x0C
 
 
-class ApiConfigTag(IntEnum):
-    CameraModel = 1
-    SerialNumber = 2
-    FirmwareVersion = 3
-    CommunicationVersion = 5
-
-
 class ProgramShift(IntEnum):
     """The dial operation amount in the camera side is not reflected."""
     Null = 0  #: Uninitialized
@@ -340,3 +333,47 @@ class AFAuxLightEF(IntEnum):
     Null = 0x00  #: Uninitialized
     On = 0x01
     Off = 0x02
+
+
+class FocusMode(IntEnum):
+    MF = 1
+    AF = 2
+    AF_S = 3
+    AF_C = 4
+
+
+class AFLock(IntEnum):
+    Off = 0
+    On = 1
+
+
+class FaceEyeAF(IntEnum):
+    Off = 0
+    FaceOnly = 1
+    FaceEyeAuto = 2
+
+
+class FaceEyeAFStatus(IntEnum):
+    NonDetection = 0
+    Detection = 1
+
+
+class FocusArea(IntEnum):
+    MultiAutoFocusPoints = 1
+    OnePointSelection = 2
+    Tracking = 3
+
+
+class OnePointSelection(IntEnum):
+    Free = 0
+    X49 = 49
+
+
+class PreConstAF(IntEnum):
+    Off = 0
+    On = 1
+
+
+class FocusLimit(IntEnum):
+    Off = 0
+    On = 1
