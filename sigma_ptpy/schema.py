@@ -632,6 +632,12 @@ class CamCaptStatus(object):
         self.CaptStatus = None
         self.DestToSave = None
 
+    def __str__(self):
+        return \
+            f"CamCaptStatus(ImageId={str(self.ImageId)}, ImageDBHead={str(self.ImageDBHead)}, " \
+            f"ImageDBTail={str(self.ImageDBTail)}, CaptStatus={str(self.CaptStatus)}, " \
+            f"DestToSave={str(self.DestToSave)})"
+
     def decode(self, rawdata):
         container = self.__Schema.parse(rawdata)
         self.ImageId = container.ImageId
@@ -671,6 +677,12 @@ class PictFileInfo2(object):
         'PathName' / CString(),
         'FileName' / CString(),
         '_Unknown1' / Bytes(2))  # ?
+
+    def __str__(self):
+        return \
+            f"PictFileInfo2(FileAddress={str(self.FileAddress)}, FileSize={str(self.FileSize)}, " \
+            f"PictureFormat={str(self.PictureFormat)}, SizeX={str(self.SizeX)}, SizeY={str(self.SizeY)}, " \
+            f"PathName={str(self.PathName)}, FileName={str(self.FileName)})"
 
     def decode(self, rawdata):
         container = self.__Schema.parse(rawdata)
