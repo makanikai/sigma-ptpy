@@ -142,7 +142,7 @@ class ColorSpace(IntEnum):
 class ColorMode(IntEnum):
     Normal = 0x00
     Sepia = 0x01
-    WhiteAndBlack = 0x02
+    Monochrome = 0x02
     Standard = 0x03
     Vivid = 0x04
     Neutral = 0x05
@@ -239,9 +239,9 @@ class HDR(IntEnum):
     Null = 0x00  #: Uninitialized
     Off = 0xFF
     Auto = 0xFE
-    EC1 = 0x01  #: Exposure compensation ±1.0
-    EC2 = 0x02  #: Exposure compensation ±3.0
-    EC3 = 0x03  #: Exposure compensation ±4.0
+    PlusMinus1 = 0x01  #: ±1.0
+    PlusMinus2 = 0x02  #: ±2.0
+    PlusMinus3 = 0x03  #: ±3.0
 
 
 class DNGQuality(IntEnum):
@@ -256,7 +256,7 @@ class LOCDistortion(IntEnum):
     Off = 0x02  #: OFF
 
 
-class LOCChromaticAbberation(IntEnum):
+class LOCChromaticAberration(IntEnum):
     """Lens Optics Compensation Chromatic Abberation"""
     Null = 0x00  #: Uninitialized
     Auto = 0x01  #: AUTO

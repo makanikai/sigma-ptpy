@@ -4,8 +4,8 @@ from construct import Container
 from ptpy import USB
 from .schema import (
     ApiConfig, CamDataGroup1, CamDataGroup2, CamDataGroup3, CamDataGroup4, CamDataGroup5,
-    CamDataGroupFocus, CamCaptStatus, SnapCommand, PictFileInfo2, BigPartialPictFile,
-    ViewFrame)
+    CamDataGroupFocus, CamCanSetInfo5, CamCaptStatus,
+    SnapCommand, PictFileInfo2, BigPartialPictFile, ViewFrame)
 from .sigma_ptp import SigmaPTP
 
 
@@ -182,6 +182,13 @@ class SigmaPTPy(SigmaPTP, USB):
         Args:
             focus (sigma_ptpy.schema.CamDataGroupFocus): the set of values to be sent."""
         return self.__send('SigmaSetCamDataGroupFocus', CamDataGroupFocus, focus)
+
+    def get_cam_can_set_info5(self):
+        """This instruction acquires the setting items, which can be changed through the PC, from the camera.
+
+        Returns:
+            sigma_ptpy.schema.CamCanSetInfo5: the set of values obtained from a camera."""
+        return self.__recv('SigmaGetCamCanSetInfo5', CamCanSetInfo5)
 
     def get_cam_capt_status(self, image_id):
         """This instruction acquires the shooting result from the camera.

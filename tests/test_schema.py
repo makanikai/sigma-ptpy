@@ -5,7 +5,7 @@ from sigma_ptpy.enum import (
     WhiteBalance, Resolution, ImageQuality, ColorSpace, ColorMode,
     BatteryKind, AFAuxLight, CaptStatus, DestToSave,
     DCCropMode, LVMagnifyRatio, HighISOExt, ContShootSpeed, HDR,
-    DNGQuality, LOCDistortion, LOCChromaticAbberation, LOCDiffraction,
+    DNGQuality, LOCDistortion, LOCChromaticAberration, LOCDiffraction,
     LOCVignetting, LOCColorShade, LOCColorShadeAcq, EImageStab,
     ToneEffect, AspectRatio)
 from sigma_ptpy.schema import (
@@ -222,7 +222,7 @@ class Test_CamDataGroup4(unittest.TestCase):
         self.assertEqual(res.DNGQuality, DNGQuality.Q14bit)
         self.assertEqual(res.FillLight, 0x00)
         self.assertEqual(res.LOCDistortion, LOCDistortion.Auto)
-        self.assertEqual(res.LOCChromaticAbberation, LOCChromaticAbberation.Auto)
+        self.assertEqual(res.LOCChromaticAberration, LOCChromaticAberration.Auto)
         self.assertEqual(res.LOCDiffraction, LOCDiffraction.Off)
         self.assertEqual(res.LOCVignetting, LOCVignetting.Auto)
         self.assertEqual(res.LOCColorShade, LOCColorShade.Off)
