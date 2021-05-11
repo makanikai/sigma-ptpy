@@ -123,3 +123,5 @@ with camera.session():
     print(f"  Distance Measurement Frame detection status = {str(focus.DMFDetection)}")
     print(f"  Pre AF / Constant AF = {str(focus.PreConstAF)}")
     print(f"  Focus Limit = {str(focus.FocusLimit)}")
+
+    camera.close_application()
