@@ -6,10 +6,9 @@ The SIGMA fp series is a set of full-size mirrorless cameras developed by [SIGMA
 The cameras supports PTP (Picture Transfer Protocol; ISO15740) for access to functionality of them
 from computers such as
 
-- getting and setting properties (shutter speed, aperture, white balance, color mode, etc.),
+- getting and setting parameters (shutter speed, aperture, white balance, color mode, etc.),
 - taking pictures,
 - live view,
-- managing files on a storage in a camera,
 
 and so on. This Python library provides a part of the opration on the fp series.
 
