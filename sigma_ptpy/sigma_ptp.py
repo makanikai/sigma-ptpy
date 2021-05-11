@@ -15,15 +15,19 @@ class SigmaPTP(PTP):
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
             SigmaSetCamDataGroup3=0x9018,
-            SigmaClearImageDBSingle=0x901c,
+            SigmaSetCamClockAdj=0x9019,
             SigmaSnapCommand=0x901B,
+            SigmaClearImageDBSingle=0x901C,
             SigmaGetBigPartialPictFile=0x9022,
             SigmaGetCamDataGroup4=0x9023,
             SigmaSetCamDataGroup4=0x9024,
             SigmaGetCamDataGroup5=0x9027,
             SigmaSetCamDataGroup5=0x9028,
+            SigmaGetLastCommandData=0x9029,
+            SigmaFreeArrayMemory=0x902A,
             SigmaGetViewFrame=0x902B,
             SigmaGetPictFileInfo2=0x902D,
+            SigmaCloseApplication=0x902F,
             SigmaGetCamCanSetInfo5=0x9030,
             SigmaGetCamDataGroupFocus=0x9031,
             SigmaSetCamDataGroupFocus=0x9032,
@@ -32,8 +36,7 @@ class SigmaPTP(PTP):
             SigmaConfigApi=0x9035,
             SigmaGetMovieFileInfo=0x9036,
             SigmaGetPartialMovieFile=0x9037,
-            **vendor_operations
-        )
+            **vendor_operations)
 
     def _ResponseCode(self, **vendor_operations):
         return super(SigmaPTP, self)._ResponseCode(
@@ -44,16 +47,25 @@ class SigmaPTP(PTP):
             SigmaSetCamDataGroup1=0x9016,
             SigmaSetCamDataGroup2=0x9017,
             SigmaSetCamDataGroup3=0x9018,
+            SigmaSetCamClockAdj=0x9019,
             SigmaSnapCommand=0x901B,
+            SigmaClearImageDBSingle=0x901C,
             SigmaGetBigPartialPictFile=0x9022,
             SigmaGetCamDataGroup4=0x9023,
             SigmaSetCamDataGroup4=0x9024,
             SigmaGetCamDataGroup5=0x9027,
             SigmaSetCamDataGroup5=0x9028,
+            SigmaGetLastCommandData=0x9029,
+            SigmaFreeArrayMemory=0x902A,
             SigmaGetViewFrame=0x902B,
             SigmaGetPictFileInfo2=0x902D,
+            SigmaCloseApplication=0x902F,
+            SigmaGetCamCanSetInfo5=0x9030,
             SigmaGetCamDataGroupFocus=0x9031,
             SigmaSetCamDataGroupFocus=0x9032,
+            SigmaGetCamDataGroupMovie=0x9033,
+            SigmaSetCamDataGroupMovie=0x9034,
             SigmaConfigApi=0x9035,
-            **vendor_operations
-        )
+            SigmaGetMovieFileInfo=0x9036,
+            SigmaGetPartialMovieFile=0x9037,
+            **vendor_operations)
