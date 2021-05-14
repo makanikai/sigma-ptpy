@@ -22,6 +22,7 @@ class SigmaPTPy(SigmaPTP, USB):
     Args:
         device (object): the USB device object.
         name (str): the name of USB devices for search.
+        ignore_events (bool):
 
     Examples:
         Usage as follows::
@@ -34,15 +35,23 @@ class SigmaPTPy(SigmaPTP, USB):
                  camera.config_api()
                  # Do something."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, ignore_events=False, **kwargs):
         logger.debug("Init SigmaPTPy")
-        # Override default_time in usb.core
-        default_timeout = usb.core._DEFAULT_TIMEOUT
-        usb.core._DEFAULT_TIMEOUT = 5000
         super(SigmaPTPy, self).__init__(*args, **kwargs)
-        usb.core._DEFAULT_TIMEOUT = default_timeout
 
-    def __recv(self, opcode, klass, params=[]):
+        if ignore_events:
+            # bad operation for ignoring PTP events
+            self._USBTransport__event_shutdown.set()
+            if self._USBTransport__event_proc.is_alive():
+                self._USBTransport__event_proc.join(2)
+
+    def __recv(self, opcode, klass, params=[], timeout=None):
+        _timeout = None
+        # bad operation for setting timeout
+        if timeout is not None:
+            _timeout = self._USBTransport__inep.device._Device__default_timeout
+            self._USBTransport__inep.device._Device__default_timeout = timeout
+
         ptp = Container(
             OperationCode=opcode,
             SessionID=self._session,
@@ -50,6 +59,10 @@ class SigmaPTPy(SigmaPTP, USB):
             Parameter=params)
         response = self.recv(ptp)
         logger.debug("RECV {} {}".format(opcode, _bytes_to_hex(response.Data)))
+
+        if _timeout is not None:
+            self._USBTransport__inep.device._Device__default_timeout = _timeout
+
         instance = klass()
         instance.decode(response.Data)
         return instance
@@ -242,7 +255,7 @@ class SigmaPTPy(SigmaPTP, USB):
             Parameter=[image_id])
         return self.send(ptp, payload)
 
-    def get_big_partial_pict_file(self, store_address, start_address, max_length):
+    def get_big_partial_pict_file(self, store_address, start_address, max_length, timeout=5000):
         """This function downloads image data (image file) shot by the camera in pieces.
 
         Args:
@@ -253,4 +266,5 @@ class SigmaPTPy(SigmaPTP, USB):
         Returns:
             sigma_ptpy.schema.BigPartialPictFile: BigPartialPictFile object."""
         return self.__recv('SigmaGetBigPartialPictFile', BigPartialPictFile,
-                           params=[store_address, start_address, max_length])
+                           params=[store_address, start_address, max_length],
+                           timeout=timeout)
