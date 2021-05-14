@@ -20,7 +20,7 @@ def wait_completion(camera, image_id):
 
 
 if __name__ == '__main__':
-    camera = SigmaPTPy()
+    camera = SigmaPTPy(ignore_events=True)
 
     with camera.session():
         camera.config_api()
