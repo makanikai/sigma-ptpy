@@ -63,6 +63,29 @@ CamDataGroup3:
   DestToSave = DestToSave.Null
 ```
 
+## Known bugs
+
+### Timeout
+
+When an application program frequently prints the following error, `SigmaPTPy(ignore_events=True)` reduces errors.
+
+```
+E 5255 ptpy.transports.usb[EvtPolling:__recv:350] [Errno 60] Operation timed out
+E 5255 ptpy.transports.usb[EvtPolling:__poll_events:574] <DEVICE ID 1003:c432 on Bus 020 Address 036> polling exception: [Errno 60] Operation timed out
+```
+
+A thread polling PTP events in PTPy possibly fails reading data from SIGMA fp.
+`ignore_events` parameter kills the thread in the `SigmaPTPy` constructor.
+Timeout will happend only once at the constructor.
+
+### Incorrect lens focal lengths
+
+I write a program according to the SIGMA official API document, but
+`LensWideFocalLength` and `LensTeleFocalLength`  (in `CamDataGroup3`) are always wrong in my environment.
+I have no idea to fix it.
+
+As far as I know, the official document is partially incorrect.
+
 ## Related work
 
 SIGMA Corp distributes the [SIGMA Camera Control SDK](https://www.sigma-global.com/en/news/2020/07/02/10916/) for the SIGMA fp series. The official library fully supports the functionality of the cameras, and includes API documents, C/Objective-C headers, and compiled binary files for Windows and Mac.

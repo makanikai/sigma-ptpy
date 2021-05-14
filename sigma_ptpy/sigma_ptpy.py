@@ -33,7 +33,8 @@ class SigmaPTPy(SigmaPTP, USB):
 
             with camera.session():
                  camera.config_api()
-                 # Do something."""
+                 # Do something.
+                 camera.close_application()"""
 
     def __init__(self, *args, ignore_events=False, **kwargs):
         logger.debug("Init SigmaPTPy")
